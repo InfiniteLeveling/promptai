@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptArchitect AI — Autonomous Prompt Orchestration & Pre-Compiler</title>
+  <meta name="description" content="Pre-compilation prompt orchestration engine upstream of autonomous software engineering agents. Bridges the GIGO chasm into verified Master Prompts.">
+
+  <!-- Pre-Paint Theme Initialization (Zero White Flash) -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('promptarchitect_theme');
+        if (theme) {
+          document.documentElement.setAttribute('data-theme', JSON.parse(theme));
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <!-- Google Fonts: Outfit (Display), Inter (UI), JetBrains Mono (Code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="navbar" role="banner">
+    <div class="brand-wrapper">
+      <div class="brand-icon" aria-hidden="true">PA</div>
+      <span class="brand-title">PromptArchitect<span style="color: var(--primary-400);">AI</span></span>
+      <span class="brand-badge">V0.1 Sandbox</span>
+    </div>
+
+    <!-- Target Agent Selector Pills -->
+    <div id="target-selector-mount"></div>
+
+    <div class="nav-actions">
+      <button id="btn-toggle-theme" class="btn btn-secondary" title="Toggle Light / Dark Theme" aria-label="Toggle theme">
+        🌙 Dark
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container" role="main">
+
+    <!-- Hero Header & Value Proposition -->
+    <header class="hero-header">
+      <div class="hero-tagline">Task-First Ingestion • Zero Conversational Fatigue</div>
+      <h1 class="hero-title">Your Idea In. Production-Ready Prompts Out.</h1>
+      <p class="hero-subtitle">
+        Eliminate the "Garbage In, Garbage Out" chasm. Translate vague ideas into strict intermediate schemas, resolve ambiguity with 15-second chips, and compile verified Two-Prompt agent blueprints.
+      </p>
+    </header>
+
+    <!-- Two-Column Dynamic Workspace -->
+    <div class="workspace-grid">
+
+      <!-- Left Column: Input Ingestion & Clarification Chips -->
+      <section class="workspace-col" aria-label="Prompt Ingestion & Clarification">
+
+        <!-- Ingestion Card -->
+        <div class="card">
+          <div class="ingest-tabs" role="tablist" aria-label="Ingestion Modes">
+            <button class="ingest-tab-btn active" data-mode="text" role="tab" aria-selected="true" id="tab-text">
+              <span>✍️</span> Text-to-Prompt
+            </button>
+            <button class="ingest-tab-btn" data-mode="screenshot" role="tab" aria-selected="false" id="tab-screenshot">
+              <span>🖼️</span> Screenshot (Vision)
+            </button>
+            <button class="ingest-tab-btn" data-mode="github" role="tab" aria-selected="false" id="tab-github">
+              <span>🐙</span> GitHub Context
+            </button>
+          </div>
+
+          <label for="input-raw-idea" class="sr-only" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);">Raw prompt idea</label>
+          <textarea
+            id="input-raw-idea"
+            class="input-area"
+            placeholder="Describe your idea in natural language (e.g., 'Build a clothing donation platform with HTML, CSS, and JS')..."
+            rows="4"
+            aria-label="Input prompt idea"></textarea>
+
+          <!-- Quick Samples Selector -->
+          <div class="quick-samples">
+            <span class="quick-label">⚡ Try Archetypes:</span>
+            <button class="sample-chip" data-sample-id="clothing-donation" title="Website Archetype">Clothing Donation</button>
+            <button class="sample-chip" data-sample-id="saas-analytics" title="Real-time Web App">SaaS Analytics</button>
+            <button class="sample-chip" data-sample-id="flutter-delivery" title="Mobile App Archetype">Flutter Grocery App</button>
+            <button class="sample-chip" data-sample-id="midjourney-portrait" title="Visual Image Generator">Midjourney Portrait</button>
+            <button class="sample-chip" data-sample-id="python-scraper" title="Backend Coding Task">Python Scraper</button>
+          </div>
+        </div>
+
+        <!-- Smart Clarification Deck Mount -->
+        <section id="clarification-chips-mount" aria-label="Clarification Deck"></section>
+
+      </section>
+
+      <!-- Right Column: Live 100-Point Score Gauge HUD -->
+      <section class="workspace-col" aria-label="Diagnostic Score and Rubric">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <span>🎯</span> Live Diagnostic Score HUD
+            </span>
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 600;">100-PT HEURISTIC</span>
+          </div>
+
+          <div id="score-meter-mount"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Output Stage: Two-Prompt Split Viewer -->
+    <section class="output-stage-section card" aria-label="Compiled Deliverables Stage">
+      <div id="prompt-viewer-mount"></div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- SPA Module Entry Point -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

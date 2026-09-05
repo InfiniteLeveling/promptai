@@ -1,0 +1,505 @@
+[
+  {
+    "id": "clothing-donation",
+    "title": "Clothing Donation Platform",
+    "category": "website",
+    "raw_input": "Build a clothing donation platform with HTML, CSS, and JS",
+    "diagnostic_score": 42,
+    "score_breakdown": {
+      "goal_clarity": 14,
+      "requirements_completeness": 6,
+      "context_environment": 8,
+      "technical_constraints": 4,
+      "technical_specificity": 4,
+      "output_formatting": 4,
+      "acceptance_criteria": 2
+    },
+    "deficiencies": [
+      "Missing database and state persistence strategy",
+      "No user roles or authorization defined (Donor vs Charity Admin)",
+      "Undefined clothing category taxonomy and donation status workflow"
+    ],
+    "clarification_chips": [
+      {
+        "id": "chip_auth",
+        "question": "Authentication Strategy",
+        "options": ["Local Storage / Demo Mode", "Firebase Auth", "JWT + Node Backend"]
+      },
+      {
+        "id": "chip_db",
+        "question": "Data Persistence",
+        "options": ["In-Memory Mock State", "IndexedDB / LocalStorage", "REST API + SQLite"]
+      },
+      {
+        "id": "chip_workflow",
+        "question": "Donation Workflow",
+        "options": ["Simple Form Submission", "Multi-Step Donor Wizard with Tracking"]
+      }
+    ],
+    "final_score": 94,
+    "final_score_breakdown": {
+      "goal_clarity": 20,
+      "requirements_completeness": 19,
+      "context_environment": 14,
+      "technical_constraints": 14,
+      "technical_specificity": 9,
+      "output_formatting": 9,
+      "acceptance_criteria": 9
+    },
+    "canonical_spec": {
+      "spec_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      "category": "website",
+      "objective": {
+        "title": "Community Clothing Donation Platform",
+        "primary_goal": "Enable community members to catalog, schedule, and track clothing donations to certified local charities.",
+        "target_users": ["Individual Donors", "Charity Coordinators", "Logistics Volunteers"]
+      },
+      "technical_stack": {
+        "language_runtime": "JavaScript (ES6+ Modules)",
+        "frontend_framework": "Vanilla HTML5 / CSS3",
+        "backend_framework": "None (Client-Side Demo)",
+        "database_layer": "IndexedDB with LocalStorage fallback",
+        "auth_strategy": "Local Role Switcher (Donor / Admin)",
+        "styling_engine": "Vanilla CSS Custom Properties (Dark / Light Theme)"
+      },
+      "functional_requirements": [
+        {
+          "feature": "Donation Item Submission",
+          "description": "Multi-step form allowing donors to capture item type, condition, photo upload, and drop-off vs pick-up preference.",
+          "priority": "P0"
+        },
+        {
+          "feature": "Charity Inventory & Verification",
+          "description": "Admin dashboard to review submitted donations, change status (Pending -> Accepted -> Distributed), and generate receipts.",
+          "priority": "P0"
+        },
+        {
+          "feature": "Impact Telemetry & Counter",
+          "description": "Live statistical counter displaying total kilograms of clothing diverted from landfills and families supported.",
+          "priority": "P1"
+        }
+      ],
+      "constraints": {
+        "performance": ["Initial page paint under 350ms", "Zero external JavaScript frameworks"],
+        "security": ["Client-side input sanitization", "No raw eval or innerHTML injection"],
+        "prohibited_packages": ["TailwindCSS", "Bootstrap", "React", "Lodash"]
+      },
+      "acceptance_criteria": [
+        "Donor can complete a 3-step clothing submission and receive a unique Tracking ID.",
+        "Submitted donation immediately reflects in the Charity Admin view across browser tabs.",
+        "All user actions persist cleanly across page reloads using IndexedDB."
+      ],
+      "metadata": {
+        "target_agent": "antigravity",
+        "initial_quality_score": 42,
+        "final_quality_score": 94
+      }
+    },
+    "deliverables": {
+      "antigravity": {
+        "prompt_a": "<!-- PROMPT A: ARCHITECTURAL SPECIFICATION PROMPT -->\n<system_context>\nYou are an elite Systems Architect operating in Architectural Planning Mode.\nYour objective is to produce a complete, deterministic PRD and Canonical RequirementSpec for a Community Clothing Donation Platform.\nDO NOT create application code or run modifying commands during this step.\n</system_context>\n\n<architectural_guidelines>\n1. Target Stack: Pure HTML5, Vanilla CSS3 (Custom Properties), ES6+ Modules, IndexedDB persistence.\n2. Security Boundary: Strict input sanitization; zero external framework dependencies.\n3. Data Models: Define DonationItem (id, donorName, category, condition, status, timestamp) and CharityProfile schemas.\n4. Deliverables Required: Output CanonicalRequirementSpec JSON and PRD.md.\n</architectural_guidelines>",
+        "prompt_b": "<!-- PROMPT B: ANTIGRAVITY IMPLEMENTATION PROMPT -->\n<task_directive>\nYou are an autonomous software engineering agent executing Phase-by-Phase implementation of the Community Clothing Donation Platform.\nFollow strict atomic milestones with terminal checkpoints.\n</task_directive>\n\n<execution_protocol>\nStep 1: Inspect repository directory tree and confirm zero build tools exist.\nStep 2: Implement client/index.html with semantic markup (Donor View + Admin Dashboard).\nStep 3: Implement client/css/style.css with responsive flex/grid and glassmorphic card tokens.\nStep 4: Implement client/js/db.js wrapping IndexedDB with Promise-based CRUD.\nStep 5: Verify donation creation, state persistence, and role switching using browser verification tools.\nStep 6: Ensure zero console errors and full keyboard navigation.\n</execution_protocol>"
+      },
+      "cursor": {
+        "cursorrules": "# .cursorrules for Clothing Donation Platform\n- Always use Vanilla JavaScript (ES6+ Modules) and Vanilla CSS3 Custom Properties.\n- Prohibited: Do NOT install or suggest TailwindCSS, React, or heavy utility libraries.\n- Ensure all persistent state uses the IndexedDB wrapper in `client/js/db.js`.\n- Write semantic HTML with explicit `id` attributes on all buttons and form controls.\n- Add JSDoc comments on all exported functions with @param and @returns tags."
+      }
+    }
+  },
+  {
+    "id": "saas-analytics",
+    "title": "Real-Time SaaS Analytics Dashboard",
+    "category": "app",
+    "raw_input": "Build a real-time SaaS product analytics dashboard with metrics and charts",
+    "diagnostic_score": 54,
+    "score_breakdown": {
+      "goal_clarity": 16,
+      "requirements_completeness": 8,
+      "context_environment": 10,
+      "technical_constraints": 6,
+      "technical_specificity": 6,
+      "output_formatting": 4,
+      "acceptance_criteria": 4
+    },
+    "deficiencies": [
+      "No data ingestion protocol or WebSocket specification defined",
+      "Undefined aggregation window (real-time vs 1h vs 24h buckets)",
+      "Missing tenant isolation and API key authorization model"
+    ],
+    "clarification_chips": [
+      {
+        "id": "chip_transport",
+        "question": "Data Streaming Transport",
+        "options": ["Server-Sent Events (SSE)", "WebSockets", "Polling (REST 5s)"]
+      },
+      {
+        "id": "chip_charts",
+        "question": "Data Visualization Layer",
+        "options": ["Canvas / SVG Native", "Chart.js Lightweight", "D3.js Custom"]
+      },
+      {
+        "id": "chip_db",
+        "question": "Telemetry Storage Engine",
+        "options": ["ClickHouse OLAP", "PostgreSQL TimescaleDB", "In-Memory Redis Ring"]
+      }
+    ],
+    "final_score": 96,
+    "final_score_breakdown": {
+      "goal_clarity": 20,
+      "requirements_completeness": 20,
+      "context_environment": 15,
+      "technical_constraints": 14,
+      "technical_specificity": 9,
+      "output_formatting": 9,
+      "acceptance_criteria": 9
+    },
+    "canonical_spec": {
+      "spec_id": "8f3b2a1c-9941-4cde-a111-eec74b881290",
+      "category": "app",
+      "objective": {
+        "title": "Real-Time Product Telemetry & Metrics Dashboard",
+        "primary_goal": "Provide engineering and product teams with sub-second event ingestion visualization and user retention funnels.",
+        "target_users": ["Product Managers", "DevOps Engineers", "Platform Architects"]
+      },
+      "technical_stack": {
+        "language_runtime": "TypeScript / Node.js 20+",
+        "frontend_framework": "Vanilla HTML5 Canvas & Custom DOM UI",
+        "backend_framework": "Fastify with SSE streams",
+        "database_layer": "ClickHouse Timeseries Table",
+        "auth_strategy": "Bearer API Key per tenant",
+        "styling_engine": "Cyber-Obsidian CSS Tokens"
+      },
+      "functional_requirements": [
+        {
+          "feature": "Live Event Stream HUD",
+          "description": "Stream incoming telemetry events with latency under 150ms via Server-Sent Events.",
+          "priority": "P0"
+        },
+        {
+          "feature": "Metric Aggregation Gauges",
+          "description": "Real-time visual gauges for Active Users, P99 Latency, Error Rate (4xx/5xx), and Requests/sec.",
+          "priority": "P0"
+        }
+      ],
+      "constraints": {
+        "performance": ["Zero dropped frames during 500 events/sec burst", "Dashboard heap size < 80MB"],
+        "security": ["Encrypted WebSocket/TLS stream", "Tenant ID validation on every packet"],
+        "prohibited_packages": ["Heavy Electron wrappers", "Moment.js"]
+      },
+      "acceptance_criteria": [
+        "Incoming simulated event stream renders on chart within 150ms of generation.",
+        "P99 latency gauge updates accurately with rolling 60-second window."
+      ],
+      "metadata": {
+        "target_agent": "antigravity",
+        "initial_quality_score": 54,
+        "final_quality_score": 96
+      }
+    },
+    "deliverables": {
+      "antigravity": {
+        "prompt_a": "<!-- PROMPT A: SAAS ANALYTICS SYSTEM ARCHITECTURE -->\n<system_directive>\nDefine real-time telemetry schema (TenantId, EventType, TimestampNano, LatencyMs, Metadata) and Fastify SSE pipeline specifications before coding.\n</system_directive>",
+        "prompt_b": "<!-- PROMPT B: ANTIGRAVITY SAAS ANALYTICS IMPLEMENTATION -->\n<task_directive>\nPhase 1: Build SSE server emitting 50 events/sec.\nPhase 2: Build high-performance Canvas line renderer.\nPhase 3: Connect stream and verify zero memory leak after 5 minutes of continuous streaming.\n</task_directive>"
+      },
+      "cursor": {
+        "cursorrules": "# .cursorrules for Real-Time SaaS Analytics\n- Render all timeseries charts using HTML5 Canvas 2D context.\n- Enforce strict TypeScript types on all event payloads.\n- Do NOT allocate objects inside the animation frame render loop."
+      }
+    }
+  },
+  {
+    "id": "flutter-delivery",
+    "title": "Grocery Quick-Commerce Mobile App",
+    "category": "app",
+    "raw_input": "Create a Flutter mobile app for 15-minute grocery delivery with cart and checkout",
+    "diagnostic_score": 38,
+    "score_breakdown": {
+      "goal_clarity": 12,
+      "requirements_completeness": 6,
+      "context_environment": 8,
+      "technical_constraints": 4,
+      "technical_specificity": 4,
+      "output_formatting": 2,
+      "acceptance_criteria": 2
+    },
+    "deficiencies": [
+      "Missing location tracking and geofencing architecture",
+      "No payment gateway integration specified (Stripe vs Apple/Google Pay)",
+      "Undefined state management architecture (Bloc vs Riverpod)"
+    ],
+    "clarification_chips": [
+      {
+        "id": "chip_state",
+        "question": "State Management Pattern",
+        "options": ["Flutter Riverpod 2.x", "BLoC Pattern", "StateNotifier / Signals"]
+      },
+      {
+        "id": "chip_backend",
+        "question": "Backend & Real-Time Sync",
+        "options": ["Supabase Realtime + Edge Functions", "Firebase Cloud Firestore", "Custom Go gRPC"]
+      },
+      {
+        "id": "chip_maps",
+        "question": "Live Rider Tracking",
+        "options": ["Google Maps SDK", "Mapbox Navigation SDK", "Static Coordinates Mock"]
+      }
+    ],
+    "final_score": 92,
+    "final_score_breakdown": {
+      "goal_clarity": 19,
+      "requirements_completeness": 19,
+      "context_environment": 14,
+      "technical_constraints": 13,
+      "technical_specificity": 9,
+      "output_formatting": 9,
+      "acceptance_criteria": 9
+    },
+    "canonical_spec": {
+      "spec_id": "4a1290bb-88fe-4a92-b5ef-1c887229a101",
+      "category": "app",
+      "objective": {
+        "title": "Quick-Commerce Grocery Delivery App",
+        "primary_goal": "Provide consumers with ultra-fast catalog search, 1-tap cart additions, and live GPS rider tracking under 15 minutes.",
+        "target_users": ["Grocery Shoppers", "Dark Store Pickers", "Delivery Riders"]
+      },
+      "technical_stack": {
+        "language_runtime": "Dart 3.x / Flutter 3.22+",
+        "frontend_framework": "Flutter Material 3",
+        "backend_framework": "Supabase Realtime",
+        "database_layer": "PostgreSQL with PostGIS for Geofencing",
+        "auth_strategy": "Phone Number OTP via Supabase Auth",
+        "styling_engine": "Custom ThemeData with Dark Mode"
+      },
+      "functional_requirements": [
+        {
+          "feature": "1-Tap Cart & Sticky Subtotal",
+          "description": "Optimistic UI state for instant item quantity increments and dynamic delivery fee recalculation.",
+          "priority": "P0"
+        },
+        {
+          "feature": "Live Order & GPS Tracking Screen",
+          "description": "Real-time socket listening to rider longitude/latitude updating route polyline on map.",
+          "priority": "P0"
+        }
+      ],
+      "constraints": {
+        "performance": ["60fps scrolling on mid-range Android devices", "Cold launch under 1.2s"],
+        "security": ["Secure key storage using flutter_secure_storage"],
+        "prohibited_packages": ["Deprecated Provider package"]
+      },
+      "acceptance_criteria": [
+        "Cart state survives app termination and re-opens accurately.",
+        "Rider location updates animate smoothly without stutter on Android and iOS."
+      ],
+      "metadata": {
+        "target_agent": "antigravity",
+        "initial_quality_score": 38,
+        "final_quality_score": 92
+      }
+    },
+    "deliverables": {
+      "antigravity": {
+        "prompt_a": "<!-- PROMPT A: FLUTTER QUICK-COMMERCE ARCHITECTURE -->\n<system_directive>\nDefine Riverpod state providers (cartNotifierProvider, orderStreamProvider) and Supabase database schema before creating Flutter widget code.\n</system_directive>",
+        "prompt_b": "<!-- PROMPT B: ANTIGRAVITY FLUTTER IMPLEMENTATION -->\n<task_directive>\nStep 1: Scaffold flutter create with clean architecture feature folders.\nStep 2: Implement Riverpod cart models with unit tests.\nStep 3: Build Catalog and Sticky Cart UI.\nStep 4: Execute flutter test and verify zero widget rebuild warnings.\n</task_directive>"
+      },
+      "cursor": {
+        "cursorrules": "# .cursorrules for Flutter Quick-Commerce\n- Use Flutter Riverpod with code generation (@riverpod).\n- Never use setState() in feature screens; use ConsumerWidget.\n- All asset paths must be centralized in `lib/core/constants/assets.dart`."
+      }
+    }
+  },
+  {
+    "id": "midjourney-portrait",
+    "title": "Cinematic Cyberpunk Studio Portrait",
+    "category": "image",
+    "raw_input": "Cyberpunk girl portrait in neon rain",
+    "diagnostic_score": 30,
+    "score_breakdown": {
+      "goal_clarity": 10,
+      "requirements_completeness": 4,
+      "context_environment": 6,
+      "technical_constraints": 4,
+      "technical_specificity": 2,
+      "output_formatting": 2,
+      "acceptance_criteria": 2
+    },
+    "deficiencies": [
+      "Missing camera model, lens millimeter, and aperture (f-stop)",
+      "Undefined lighting ratios and color temperature (Kelvin)",
+      "Missing Midjourney parameters (--ar, --v, --stylize, --chaos, negative tokens)"
+    ],
+    "clarification_chips": [
+      {
+        "id": "chip_lens",
+        "question": "Camera Lens & Aperture",
+        "options": ["85mm f/1.4 Portrait Prime", "35mm f/1.8 Cinematic Street", "Anamorphic 50mm T2.0"]
+      },
+      {
+        "id": "chip_lighting",
+        "question": "Lighting Atmosphere",
+        "options": ["Volumetric Neon Rim Lighting with Fog", "Split High-Contrast Chiaroscuro", "Golden Hour Dappled Sun"]
+      },
+      {
+        "id": "chip_aspect",
+        "question": "Aspect Ratio Flag",
+        "options": ["--ar 16:9 (Cinematic Landscape)", "--ar 9:16 (Mobile Story)", "--ar 4:5 (Instagram Portrait)"]
+      }
+    ],
+    "final_score": 98,
+    "final_score_breakdown": {
+      "goal_clarity": 20,
+      "requirements_completeness": 20,
+      "context_environment": 15,
+      "technical_constraints": 15,
+      "technical_specificity": 10,
+      "output_formatting": 9,
+      "acceptance_criteria": 9
+    },
+    "canonical_spec": {
+      "spec_id": "771e8921-664c-4512-8812-9011bbcca231",
+      "category": "image",
+      "objective": {
+        "title": "Photorealistic Cyberpunk Studio Cinematic Portrait",
+        "primary_goal": "Generate hyper-detailed Midjourney v6 photographic prompt eliminating cartoonish or generic plastic stock textures.",
+        "target_users": ["Visual Creators", "Concept Artists", "Art Directors"]
+      },
+      "technical_stack": {
+        "language_runtime": "Midjourney Prompt Engine v6.0",
+        "frontend_framework": "None",
+        "backend_framework": "None",
+        "database_layer": "None",
+        "auth_strategy": "None",
+        "styling_engine": "Photographic Tokens (Hasselblad H6D-100c, 85mm f/1.4, Kodak Portra 400 tone)"
+      },
+      "functional_requirements": [
+        {
+          "feature": "Photographic Optical Parameters",
+          "description": "Itemize camera sensor, focal length, shallow depth of field, and bokeh micro-refractions on raindrops.",
+          "priority": "P0"
+        },
+        {
+          "feature": "Negative Token Exclusion",
+          "description": "Strict exclusion of CGI, 3D render, cartoon, plastic skin, anime, deformed hands.",
+          "priority": "P0"
+        }
+      ],
+      "constraints": {
+        "performance": ["Zero conflicting quality tokens like 'photorealistic 8k' which degrade v6 output"],
+        "security": ["Safe for work content boundary"],
+        "prohibited_packages": []
+      },
+      "acceptance_criteria": [
+        "Midjourney prompt contains strict camera, lighting, styling, and version parameters.",
+        "Prompt passes syntactic parameter validation with balanced flags."
+      ],
+      "metadata": {
+        "target_agent": "midjourney",
+        "initial_quality_score": 30,
+        "final_quality_score": 98
+      }
+    },
+    "deliverables": {
+      "midjourney": {
+        "prompt_a": "<!-- MIDJOURNEY COMPOSITION SPECIFICATION -->\nSubject: 26-year-old East Asian female cyber-operative with subtle iridescent titanium neural ear cuffs\nSetting: Drenched alleyway in Neo-Shinjuku, midnight, reflections in wet asphalt\nOptics: Shot on Hasselblad H6D-100c, 85mm f/1.4 lens, razor-sharp focus on iris\nLighting: Volumetric electric magenta and cyan neon rim lighting with subtle rain mist diffusion",
+        "prompt_b": "A cinematic editorial portrait of a 26-year-old female cyber-operative in rain-soaked Neo-Shinjuku, subtle iridescent titanium neural ear cuffs, translucent waterproof high-collar techwear jacket, water droplets glistening on textured skin, natural pores, caught mid-glance, cinematic composition, shot on Hasselblad H6D-100c, 85mm f/1.4 lens, shallow depth of field, delicate volumetric cyan and magenta neon rim lighting, subtle steam rising from street grates, kodak portra 400 color grading --ar 16:9 --v 6.0 --style raw --stylize 250 --no plastic skin, cartoon, anime, illustration, 3d render, oversaturated, deformed"
+      }
+    }
+  },
+  {
+    "id": "python-scraper",
+    "title": "High-Throughput Async E-Commerce Scraper",
+    "category": "coding",
+    "raw_input": "Write an async Python web scraper for product prices and availability",
+    "diagnostic_score": 48,
+    "score_breakdown": {
+      "goal_clarity": 14,
+      "requirements_completeness": 8,
+      "context_environment": 8,
+      "technical_constraints": 6,
+      "technical_specificity": 6,
+      "output_formatting": 4,
+      "acceptance_criteria": 2
+    },
+    "deficiencies": [
+      "No anti-bot evasion strategy (residential proxies, header rotation, TLS fingerprinting)",
+      "Undefined concurrency control (semaphore vs worker pool)",
+      "Missing schema definition for output storage (PostgreSQL vs JSONL vs Parquet)"
+    ],
+    "clarification_chips": [
+      {
+        "id": "chip_engine",
+        "question": "Scraping Runtime Engine",
+        "options": ["Playwright Async (Headless Chromium)", "httpx + BeautifulSoup4", "Scrapy with Twisted"]
+      },
+      {
+        "id": "chip_evasion",
+        "question": "Anti-Bot & Rate Limiting",
+        "options": ["Asyncio Semaphore (5 RPS) + User-Agent Pool", "ZenRows / ScrapingBee Proxy Gateway", "Tor SOCKS5 Rotation"]
+      },
+      {
+        "id": "chip_storage",
+        "question": "Export Destination",
+        "options": ["Streaming JSONLines (JSONL)", "PostgreSQL Upsert with Prisma", "Amazon S3 Parquet Files"]
+      }
+    ],
+    "final_score": 95,
+    "final_score_breakdown": {
+      "goal_clarity": 20,
+      "requirements_completeness": 19,
+      "context_environment": 15,
+      "technical_constraints": 14,
+      "technical_specificity": 9,
+      "output_formatting": 9,
+      "acceptance_criteria": 9
+    },
+    "canonical_spec": {
+      "spec_id": "1198cbaa-1092-411a-a8fe-332910baef91",
+      "category": "coding",
+      "objective": {
+        "title": "Asynchronous High-Throughput E-Commerce Price Monitor",
+        "primary_goal": "Scrape, normalize, and stream retail product prices and stock availability with adaptive retry backoff.",
+        "target_users": ["Data Engineers", "Pricing Analysts"]
+      },
+      "technical_stack": {
+        "language_runtime": "Python 3.12+",
+        "frontend_framework": "None",
+        "backend_framework": "asyncio + httpx + selectolax",
+        "database_layer": "Asyncpg + PostgreSQL (TimescaleDB)",
+        "auth_strategy": "Rotating Header & Proxy Session Manager",
+        "styling_engine": "None"
+      },
+      "functional_requirements": [
+        {
+          "feature": "Adaptive Concurrency Limiter",
+          "description": "Enforce maximum 10 concurrent HTTP requests with token-bucket rate limiter per domain.",
+          "priority": "P0"
+        },
+        {
+          "feature": "HTML Parser with Fast Selectors",
+          "description": "Extract title, price float, currency, stock boolean, and SKU using selectolax C-parser.",
+          "priority": "P0"
+        }
+      ],
+      "constraints": {
+        "performance": ["Parse > 200 pages per minute per worker", "Memory consumption under 250MB"],
+        "security": ["Never hardcode proxy credentials; use environment variables"],
+        "prohibited_packages": ["Selenium (heavy overhead)", "urllib2 (deprecated)"]
+      },
+      "acceptance_criteria": [
+        "Unit tests mock HTTP 429 status and confirm exponential backoff with jitter.",
+        "Output JSONL stream contains zero null prices or missing SKUs."
+      ],
+      "metadata": {
+        "target_agent": "antigravity",
+        "initial_quality_score": 48,
+        "final_quality_score": 95
+      }
+    },
+    "deliverables": {
+      "antigravity": {
+        "prompt_a": "<!-- PROMPT A: PYTHON ASYNC SCRAPER ARCHITECTURE -->\n<system_directive>\nDefine Pydantic v2 ProductRecord schema, selectolax CSS selector tree, and asyncio Semaphore pool architecture before implementing worker code.\n</system_directive>",
+        "prompt_b": "<!-- PROMPT B: ANTIGRAVITY PYTHON SCRAPER IMPLEMENTATION -->\n<task_directive>\nStep 1: Create pyproject.toml with httpx, selectolax, pydantic, and pytest-asyncio.\nStep 2: Implement RateLimiter class with sliding window algorithm.\nStep 3: Implement Parser class returning ProductRecord models.\nStep 4: Run pytest and assert 100% test pass with mock HTTP responses.\n</task_directive>"
+      },
+      "cursor": {
+        "cursorrules": "# .cursorrules for Python Async Scraper\n- Always use Python 3.12 type hints (e.g., `list[str]`, `dict[str, Any]`).\n- Enforce Pydantic v2 validation for all parsed items.\n- Use `httpx.AsyncClient` with custom timeouts and keepalive connections."
+      }
+    }
+  }
+]
