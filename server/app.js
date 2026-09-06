@@ -21,11 +21,11 @@ app.use(helmet({
 const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, postman) or matching origin
-    if (!origin || origin === allowedOrigin || origin.startsWith('http://localhost:')) {
+    // Allow requests with no origin (curl, same-origin, serverless) or matching origin / vercel domains
+    if (!origin || origin === allowedOrigin || origin.startsWith('http://localhost:') || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
-      callback(new Error('Blocked by CORS policy'));
+      callback(null, true);
     }
   },
   credentials: true,

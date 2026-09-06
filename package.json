@@ -2,10 +2,29 @@
   "name": "promptarchitect-ai",
   "version": "3.0.0",
   "private": true,
+  "type": "module",
   "description": "Autonomous Pre-Compilation Requirements & Prompt Orchestration Engine",
+  "workspaces": [
+    "frontend",
+    "server"
+  ],
   "scripts": {
     "dev": "npm --prefix frontend run dev",
+    "dev:server": "npm --prefix server run dev",
     "build": "npm --prefix frontend run build",
+    "vercel-build": "npm --prefix frontend run build",
+    "start": "node server/index.js",
     "preview": "npm --prefix frontend run preview"
+  },
+  "dependencies": {
+    "@google/genai": "^2.21.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "uuid": "^11.1.0"
   }
 }

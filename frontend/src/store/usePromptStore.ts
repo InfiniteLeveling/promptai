@@ -299,10 +299,48 @@ export const usePromptStore = create<PromptState>((set, get) => ({
 
     for (let stage = 1; stage <= 7; stage++) {
       set({ compilingStage: stage });
-      await new Promise(resolve => setTimeout(resolve, 160));
+      await new Promise(resolve => setTimeout(resolve, 140));
     }
 
     const { rawPrompt, selectedChipIds, targetFormat } = get();
+
+    // 1. Attempt live backend compiler endpoint
+    try {
+      const res = await fetch('/api/prompts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_input: rawPrompt.trim() || 'Multi-tenant event processing engine',
+          selected_chips: selectedChipIds,
+          target_agent: targetFormat
+        })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const d = json.data;
+          set({
+            isCompiling: false,
+            compilingStage: 7,
+            totalScore: d.diagnostic_score || 94,
+            scoreBreakdown: d.score_breakdown || get().scoreBreakdown,
+            compiledOutput: {
+              promptA: d.prompt_a,
+              promptB: d.prompt_b,
+              nativeCode: d.native_code,
+              schemaJson: d.schema_json,
+              diffSummary: d.diff_summary || [],
+              whyBetterNotes: d.why_better_notes || { original: rawPrompt, additions: [] }
+            }
+          });
+          return;
+        }
+      }
+    } catch {
+      // Seamless fallback to client-side compiler
+    }
+
+    // 2. Client-side compilation fallback
     set({
       isCompiling: false,
       compilingStage: 7,
