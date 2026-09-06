@@ -120,7 +120,10 @@
         <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
       </a>
       <div class="flex items-center gap-3">
-        <a class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface" href="sandbox.html">Launch Sandbox ⚡</a>
+        <button onclick="alert('Sign in to PromptArchitect AI:\nConnect with Google, GitHub, or Email to sync prompt specifications.');" class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-xs text-primary">login</span>
+          <span>Login</span>
+        </button>
       </div>
     </div>
     <!-- Subnav -->
@@ -286,8 +289,75 @@
 
   </main>
 
-  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
-    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Back to Home</a>
+  <!-- Modern Developer Footer -->
+  <footer class="w-full bg-surface-container-lowest border-t border-outline-variant/20 mt-20 relative before:absolute before:inset-x-0 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-primary/50 before:to-transparent">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <!-- Top Grid: Brand + Links -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-outline-variant/10">
+        <!-- Col 1: Brand & Status -->
+        <div class="md:col-span-2 space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-md shadow-primary-container/30 shrink-0">PA</div>
+            <span class="font-headline-sm font-bold text-on-surface tracking-tight flex items-center gap-1 text-lg">PromptArchitect AI<span class="text-[10px] font-mono font-bold text-primary tracking-wider border border-primary/30 bg-primary/10 px-1 py-0.5 rounded">TM</span></span>
+          </div>
+          <p class="text-xs text-on-surface-variant max-w-sm leading-relaxed">
+            Autonomous prompt infrastructure for precision engineering. Compiling raw intent into verified, deterministic blueprints for modern coding agents.
+          </p>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container border border-outline-variant/30 text-xs font-mono text-emerald-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>All Systems Operational</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Product -->
+        <div>
+          <div class="text-[11px] font-mono text-on-surface uppercase tracking-wider mb-4 font-bold">Product</div>
+          <ul class="space-y-2.5 text-xs">
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="compiler.html">Architecture Engine</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="features.html">Heuristic Benchmarks</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="two-prompt.html">Two-Prompt Bridge</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="targets.html">Target Agents</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="pricing.html">Pricing Plans</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Developers -->
+        <div>
+          <div class="text-[11px] font-mono text-on-surface uppercase tracking-wider mb-4 font-bold">Developers</div>
+          <ul class="space-y-2.5 text-xs">
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">API Reference</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">Documentation</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">Security &amp; Isolation</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">Changelog</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="sandbox.html">Live Sandbox</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Community -->
+        <div>
+          <div class="text-[11px] font-mono text-on-surface uppercase tracking-wider mb-4 font-bold">Community</div>
+          <ul class="space-y-2.5 text-xs">
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="https://github.com" target="_blank">GitHub Repository</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Discord Community</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="#">X / Twitter</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">Terms of Protocol</a></li>
+            <li><a class="text-on-surface-variant hover:text-primary transition-colors" href="docs.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Shelf: Copyright -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-outline">
+        <div>
+          © 2026 PromptArchitect AI Inc. Autonomous prompt infrastructure for precision engineering.
+        </div>
+        <div class="flex items-center gap-4 font-mono text-[11px]">
+          <span>v3.1.2-prod</span>
+          <span>•</span>
+          <span class="text-tertiary">Zero-Drift SLA</span>
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script>

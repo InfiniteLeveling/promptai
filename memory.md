@@ -3,7 +3,7 @@
 > **Document:** `memory.md`  
 > **Document Version:** 1.0.0  
 > **Target Standard:** Persistent Context, Decision Tracking & Session Continuity  
-> **Alignment:** [architecture.md](file:///d:/prompt%20maker/architecture.md), [rules.md](file:///d:/prompt%20maker/rules.md), [phase.doc.md](file:///d:/prompt%20maker/phase.doc.md), and [design.md](file:///d:/prompt%20maker/design.md)  
+> **Alignment:** [architecture.md](file:///d:/prompt%20maker/architecture.md), [rules.md](file:///d:/prompt%20maker/rules.md), [phase.doc.md](file:///d:/prompt%20maker/phase.doc.md), [design.md](file:///d:/prompt%20maker/design.md), and [user-experence.md](file:///d:/prompt%20maker/user-experence.md)  
 
 ---
 
@@ -54,10 +54,16 @@
 | **2026-09-06** | Modern Frontend Stack Upgrade | Upgraded entire frontend architecture to **React 19 + Vite + TypeScript + Tailwind CSS + shadcn/ui + Lucide Icons + Framer Motion + React Router + Zustand + React Markdown** in `frontend/`. All 8 routes compiled with 0 type errors, verified on preview server `http://localhost:4173` with HTTP 200. | ✅ Complete |
 | **2026-09-06** | Gemini & Claude AI Workspace Redesign | Redesigned Live Sandbox into a full-height AI chat & compiler workspace (`SandboxShell`): collapsible `GeminiSidebar` (260px/68px), floating model selector, center canvas with Gemini greeting & suggestion cards, bottom floating frosted capsule input bar with mic & attachment buttons, and Claude-style slide-out `ClaudeArtifactPanel` for dual-prompts. Synchronized both the React 19 SPA (`frontend/src/`) and static mirror ([client/sandbox.html](file:///d:/prompt%20maker/client/sandbox.html)). | ✅ Complete |
 | **2026-09-06** | CTA Redirection Fix | Updated `Launch Free Sandbox` and pricing CTAs in [client/index.html](file:///d:/prompt%20maker/client/index.html), [client/landing.html](file:///d:/prompt%20maker/client/landing.html), and [frontend/src/pages/LandingPage.tsx](file:///d:/prompt%20maker/frontend/src/pages/LandingPage.tsx) to redirect directly to the Live Sandbox page (`sandbox.html` / `/sandbox`). | ✅ Complete |
+| **2026-09-06** | Sandbox Clean State & Recent Specs Cleanup | Cleaned live sandbox initial load: fresh new chat greeting, empty input, artifact panel closed by default, and pruned recent specs down to 1 sample chat (`Webhook Dispatcher`). Synchronized across both React 19 SPA and static mirror. | ✅ Complete |
+| **2026-09-06** | Constraints Shelf Removal | Removed horizontal constraints chips bar above the floating prompt input container in both React 19 (`FloatingInputBar.tsx`) and static mirror (`client/sandbox.html`), streamlining the minimalist floating capsule look. | ✅ Complete |
+| **2026-09-06** | Developer Footer Architecture & Universal Integration | Created a rich, modern Cyber-Obsidian developer footer featuring top luminous gradient, weekly prompt architecture newsletter card, 5 categorized link columns, target dialect ticker strip, and back-to-top scroll button. Integrated across all marketing pages in React 19 (`Footer.tsx`) and static subpages (`client/`), while keeping `/sandbox` and `sandbox.html` clean and full-height without a footer. | ✅ Complete |
+| **2026-09-06** | UX Manifesto & Interaction Guide | Authored [user-experence.md](file:///d:/prompt%20maker/user-experence.md) establishing the 25 human-centered interaction design principles, progressive disclosure patterns, P0/P1/P2 feature priority matrix, and effortless AI consultant interaction flow. | ✅ Complete |
+| **2026-09-06** | UX Manifesto Implementation (Lines 211–260) | Implemented the human-centered UX improvements across both React 19 SPA and static mirror: (1) Conversational first screen ("What do you want to create?") with 4 instant inspiration pills, (2) Auto-category detection pill & progressive stage messages, (3) Prompt DNA Score card (Goal Clarity, Context, Edge cases, Rigor), (4) Action Toolbar with `[Copy] [Edit] [Improve] [Export]`, and (5) "Why is this better?" side-by-side comparison tab. All builds passed with 0 errors. | ✅ Complete |
+| **2026-09-06** | Main Navbar Login Button & Auth Modal | Replaced "Launch Sandbox" in the main navigation header with a sleek "Login" button across all marketing pages in React 19 ([Header.tsx](file:///d:/prompt%20maker/frontend/src/components/layout/Header.tsx)) and static pages (`client/`), featuring a Cyber-Obsidian modal for Google, GitHub, and email authentication. | ✅ Complete |
 
 ### Issues Encountered & Resolved
 * **Issue:** Playwright driver download error (`404 Not Found` fetching `playwright-1.57.0-win32_x64.zip` from Azure CDN) during automated browser subagent initialization.
-* **Resolution:** Verified development servers (`http://localhost:5000/client/sandbox.html`, `http://localhost:5173/sandbox`, and `http://localhost:4173/sandbox`) using HTTP requests confirming all endpoints serve with HTTP 200.
+* **Resolution:** Verified development servers (`http://localhost:5000/client/sandbox.html`, `http://localhost:5173/sandbox`, and `http://localhost:4173/sandbox`) using node fetch checks confirming all endpoints respond with HTTP 200, and verified production bundle builds cleanly via `tsc -b && vite build`.
 * **Issue:** User reported "nothing chages in ui" with screenshot showing the old static sandbox.
 * **Resolution:** Synchronized [client/sandbox.html](file:///d:/prompt%20maker/client/sandbox.html) on port 5000 and rebuilt the React SPA in `frontend/dist/` on ports 5173 & 4173, so all ports instantly serve the Gemini/Claude UI.
 
@@ -66,12 +72,12 @@
 ## 3. CURRENTLY WORKING
 
 ### 3.1 Active Milestone & Focus
-* **Current Phase:** Gemini/Claude Live Sandbox Redesign & Mirror Sync Complete.
-* **Active Status:** Synchronized on `http://localhost:5000/client/sandbox.html`, `http://localhost:5173/sandbox`, and `http://localhost:4173/sandbox`.
+* **Current Phase:** UX Manifesto Implementation Verified & Synchronized.
+* **Active Status:** Synchronized on `http://localhost:5000/client/sandbox.html` and `http://localhost:5173/sandbox`.
 
 ### 3.2 What's Next
-1. Commit and push updated files to GitHub repository (`origin main`).
-2. Guide user to refresh browser to inspect the Gemini/Claude interface.
+1. Walk user through testing the new UX Manifesto features in their browser on `http://localhost:5173/sandbox` or `http://localhost:5000/client/sandbox.html`.
+2. Commit and push updated files to Git.
 3. Proceed to Phase V0.2: Gemini Backend Integration.
 
 

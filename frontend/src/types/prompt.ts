@@ -33,4 +33,9 @@ export interface CompiledOutput {
   promptB: string;
   nativeCode: string;
   schemaJson: string;
+  diffSummary: string[];
+  whyBetterNotes: {
+    original: string;
+    additions: string[];
+  };
 }

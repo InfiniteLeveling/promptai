@@ -5,6 +5,7 @@ import { ARCHETYPES, AVAILABLE_CHIPS } from '../lib/constants';
 interface PromptState {
   rawPrompt: string;
   activeArchetype: string;
+  detectedCategory: string;
   selectedChipIds: string[];
   targetFormat: TargetFormat;
   isCompiling: boolean;
@@ -12,6 +13,7 @@ interface PromptState {
   scoreBreakdown: ScoreBreakdown;
   totalScore: number;
   compiledOutput: CompiledOutput;
+  isEditingArtifact: boolean;
 
   // Actions
   setRawPrompt: (text: string) => void;
@@ -20,18 +22,41 @@ interface PromptState {
   setTargetFormat: (format: TargetFormat) => void;
   clearPrompt: () => void;
   runCompilation: () => Promise<void>;
+  improvePrompt: () => Promise<void>;
   recalculateScore: () => void;
+  setIsEditingArtifact: (val: boolean) => void;
+  updateArtifactContent: (tab: 'promptA' | 'promptB' | 'native' | 'schema', content: string) => void;
 }
 
-const DEFAULT_SCORE: ScoreBreakdown = {
-  clarity: 19,
-  completeness: 19,
-  constraints: 15,
-  gating: 14,
-  context: 9,
-  modelFit: 9,
-  edgeDefenses: 8
+const EMPTY_SCORE: ScoreBreakdown = {
+  clarity: 0,
+  completeness: 0,
+  constraints: 0,
+  gating: 0,
+  context: 0,
+  modelFit: 0,
+  edgeDefenses: 0
 };
+
+export function detectCategory(text: string): { label: string; icon: string } {
+  const lower = text.toLowerCase();
+  if (!lower.trim()) {
+    return { label: '', icon: '' };
+  }
+  if (lower.includes('image') || lower.includes('photo') || lower.includes('cinematic') || lower.includes('midjourney') || lower.includes('render')) {
+    return { label: 'Image / Creative', icon: '🎨' };
+  }
+  if (lower.includes('mobile') || lower.includes('react native') || lower.includes('ios') || lower.includes('android') || lower.includes('flutter')) {
+    return { label: 'Mobile App', icon: '📱' };
+  }
+  if (lower.includes('microservice') || lower.includes('api') || lower.includes('redis') || lower.includes('postgres') || lower.includes('docker') || lower.includes('queue') || lower.includes('sqs') || lower.includes('worker') || lower.includes('backend')) {
+    return { label: 'Microservice API', icon: '⚙️' };
+  }
+  if (lower.includes('3d') || lower.includes('three.js') || lower.includes('webgl') || lower.includes('canvas') || lower.includes('shader')) {
+    return { label: '3D WebGL Canvas', icon: '📦' };
+  }
+  return { label: 'Web Application', icon: '🌐' };
+}
 
 function generateOutputs(text: string, chips: string[], target: TargetFormat): CompiledOutput {
   const chipAdditions = chips
@@ -138,31 +163,55 @@ Requirements:
     }
   }, null, 2);
 
-  return { promptA, promptB, nativeCode, schemaJson };
+  const whyBetterNotes = {
+    original: text.trim() || 'Vague / unstructured initial requirement',
+    additions: [
+      'Two discrete normalized actor roles with clear RBAC security boundaries',
+      '3NF Relational database schema with compound indexing and foreign keys',
+      'Bounded error domains (HTTP 400 validation, 401 auth, 429 rate limit, 503 retry)',
+      'Cryptographic verification & HMAC-SHA256 timestamp replay protection',
+      'Atomic terminal validation gates enforcing >=85% branch test coverage',
+      `Target dialect optimizations formatted specifically for ${target.toUpperCase()}`
+    ]
+  };
+
+  const diffSummary = [
+    'Injected strict TypeScript type invariants and validation rules',
+    'Configured atomic terminal test checkpoints for agent progression',
+    'Specified 3NF database models with zero loose string definitions',
+    'Enforced bounded error domains and retry exponential backoff'
+  ];
+
+  return { promptA, promptB, nativeCode, schemaJson, diffSummary, whyBetterNotes };
 }
 
 export const usePromptStore = create<PromptState>((set, get) => ({
-  rawPrompt: ARCHETYPES[0].samplePrompt,
-  activeArchetype: ARCHETYPES[0].id,
-  selectedChipIds: ARCHETYPES[0].defaultChips,
+  rawPrompt: '',
+  activeArchetype: '',
+  detectedCategory: '',
+  selectedChipIds: [],
   targetFormat: 'twoprompt',
   isCompiling: false,
   compilingStage: 0,
-  scoreBreakdown: DEFAULT_SCORE,
-  totalScore: 94,
-  compiledOutput: generateOutputs(ARCHETYPES[0].samplePrompt, ARCHETYPES[0].defaultChips, 'twoprompt'),
+  scoreBreakdown: EMPTY_SCORE,
+  totalScore: 0,
+  compiledOutput: generateOutputs('', [], 'twoprompt'),
+  isEditingArtifact: false,
 
   setRawPrompt: (text: string) => {
-    set({ rawPrompt: text });
+    const cat = detectCategory(text);
+    set({ rawPrompt: text, detectedCategory: cat.label });
     get().recalculateScore();
   },
 
   loadArchetype: (archetypeId: string) => {
     const arch = ARCHETYPES.find(a => a.id === archetypeId);
     if (!arch) return;
+    const cat = detectCategory(arch.samplePrompt);
     set({
       activeArchetype: arch.id,
       rawPrompt: arch.samplePrompt,
+      detectedCategory: cat.label,
       selectedChipIds: arch.defaultChips
     });
     get().recalculateScore();
@@ -197,15 +246,27 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   clearPrompt: () => {
     set({
       rawPrompt: '',
+      activeArchetype: '',
+      detectedCategory: '',
       selectedChipIds: [],
-      scoreBreakdown: { clarity: 5, completeness: 5, constraints: 5, gating: 5, context: 5, modelFit: 5, edgeDefenses: 5 },
-      totalScore: 35
+      scoreBreakdown: EMPTY_SCORE,
+      totalScore: 0,
+      compilingStage: 0,
+      isCompiling: false,
+      isEditingArtifact: false
     });
   },
 
   recalculateScore: () => {
     const { rawPrompt, selectedChipIds } = get();
     const text = rawPrompt.trim();
+    if (!text) {
+      set({
+        scoreBreakdown: EMPTY_SCORE,
+        totalScore: 0
+      });
+      return;
+    }
     
     let clarity = Math.min(20, Math.floor(text.length / 15) + 8);
     let completeness = Math.min(20, 10 + (selectedChipIds.length * 2));
@@ -236,6 +297,23 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       isCompiling: false,
       compilingStage: 7,
       compiledOutput: generateOutputs(rawPrompt, selectedChipIds, targetFormat)
+    });
+  },
+
+  improvePrompt: async () => {
+    const { runCompilation } = get();
+    await runCompilation();
+  },
+
+  setIsEditingArtifact: (val: boolean) => set({ isEditingArtifact: val }),
+
+  updateArtifactContent: (tab: 'promptA' | 'promptB' | 'native' | 'schema', content: string) => {
+    const current = get().compiledOutput;
+    set({
+      compiledOutput: {
+        ...current,
+        [tab === 'native' ? 'nativeCode' : tab === 'schema' ? 'schemaJson' : tab]: content
+      }
     });
   }
 }));

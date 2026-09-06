@@ -117,36 +117,6 @@
                 </div>
               </div>
             </button>
-            <button onclick="loadSample('microservice')" class="w-full flex items-center gap-2.5 p-2 rounded-xl text-left text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
-              <span class="material-symbols-outlined text-tertiary text-sm">memory</span>
-              <div class="flex-1 truncate sidebar-text">
-                <div class="truncate text-xs font-medium">Payment Reconciler</div>
-                <div class="text-[10px] text-outline flex items-center justify-between mt-0.5 font-mono">
-                  <span>Go / AWS SQS</span>
-                  <span class="text-emerald-400 font-bold">92 pts</span>
-                </div>
-              </div>
-            </button>
-            <button onclick="loadSample('mobile')" class="w-full flex items-center gap-2.5 p-2 rounded-xl text-left text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
-              <span class="material-symbols-outlined text-emerald-400 text-sm">smartphone</span>
-              <div class="flex-1 truncate sidebar-text">
-                <div class="truncate text-xs font-medium">Encrypted Notes</div>
-                <div class="text-[10px] text-outline flex items-center justify-between mt-0.5 font-mono">
-                  <span>React Native</span>
-                  <span class="text-emerald-400 font-bold">90 pts</span>
-                </div>
-              </div>
-            </button>
-            <button onclick="loadSample('canvas')" class="w-full flex items-center gap-2.5 p-2 rounded-xl text-left text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
-              <span class="material-symbols-outlined text-purple-400 text-sm">view_in_ar</span>
-              <div class="flex-1 truncate sidebar-text">
-                <div class="truncate text-xs font-medium">3D Solar System</div>
-                <div class="text-[10px] text-outline flex items-center justify-between mt-0.5 font-mono">
-                  <span>Three.js WebGL</span>
-                  <span class="text-emerald-400 font-bold">91 pts</span>
-                </div>
-              </div>
-            </button>
           </div>
         </div>
 
@@ -254,7 +224,7 @@
             <span id="share-btn-text">Share</span>
           </button>
           
-          <button onclick="toggleArtifactPanel()" id="artifact-toggle-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-semibold shadow-sm transition-all">
+          <button onclick="toggleArtifactPanel()" id="artifact-toggle-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/30 text-xs font-semibold shadow-sm transition-all">
             <span class="material-symbols-outlined text-xs">dock_to_right</span>
             <span>Artifacts</span>
           </button>
@@ -272,12 +242,28 @@
               <span>7-Stage Autonomous Prompt Compiler</span>
             </div>
             <h1 class="font-display-hero text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-on-surface">
-              Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Architect.</span><br/>
-              What are we compiling today?
+              What do you want to <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">create?</span>
             </h1>
             <p class="text-xs sm:text-sm text-on-surface-variant max-w-lg mx-auto">
-              Select a recommendation card below or enter custom specifications to generate verified dual-prompt blueprints.
+              Describe it in your own words. You don't need to know how to write a prompt.
             </p>
+
+            <!-- Quick Suggestion Pills -->
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <span class="text-[11px] font-mono text-outline">Try:</span>
+              <button onclick="injectInspiration('Build a SaaS website for donating clothes with Stripe and Supabase')" class="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs text-on-surface hover:text-primary transition-all">
+                "Build a SaaS website"
+              </button>
+              <button onclick="injectInspiration('Design a microservice API in Go with Redis and PostgreSQL')" class="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs text-on-surface hover:text-primary transition-all">
+                "Microservice API with Redis"
+              </button>
+              <button onclick="injectInspiration('Cross-platform mobile app with offline-first SQLite synchronization')" class="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs text-on-surface hover:text-primary transition-all">
+                "Mobile App with Offline Sync"
+              </button>
+              <button onclick="injectInspiration('Analyze my existing agent prompt and improve clarity and constraints')" class="px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs text-on-surface hover:text-primary transition-all">
+                "Analyze existing prompt"
+              </button>
+            </div>
           </div>
 
           <!-- 4 Quick-Start Cards -->
@@ -432,23 +418,15 @@
         <div class="sticky bottom-0 z-20 pt-2 pb-4 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/95 to-transparent">
           <div class="max-w-3xl mx-auto px-4 space-y-2">
             
-            <!-- Floating Clarification Chips Shelf Directly Above Input -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar py-1 text-xs">
-              <span class="text-[10px] font-mono text-outline uppercase tracking-wider flex items-center gap-1 shrink-0">
-                <span class="material-symbols-outlined text-tertiary text-xs">auto_awesome</span> Constraints:
+            <!-- Live Progress / Detected Category pill -->
+            <div class="flex items-center justify-between px-1">
+              <span id="auto-cat-pill" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5 shadow-sm transition-all">
+                <span>🌐</span> <span id="auto-cat-text">Web Application</span>
               </span>
-              <button onclick="injectChip(this, 'Must enforce TypeScript strict mode with zero any types.')" class="chip-btn px-2.5 py-0.5 rounded-full bg-surface-container/80 hover:bg-surface-container border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-on-surface transition-all shrink-0">
-                + Strict TypeScript
-              </button>
-              <button onclick="injectChip(this, 'Include Redis distributed locking with 30s TTL.')" class="chip-btn px-2.5 py-0.5 rounded-full bg-surface-container/80 hover:bg-surface-container border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-on-surface transition-all shrink-0">
-                + Redis Lock
-              </button>
-              <button onclick="injectChip(this, 'Enforce HMAC-SHA256 signature verification with 5-minute replay window.')" class="chip-btn px-2.5 py-0.5 rounded-full bg-surface-container/80 hover:bg-surface-container border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-on-surface transition-all shrink-0">
-                + HMAC Replay
-              </button>
-              <button onclick="injectChip(this, 'Unit tests must achieve >=85% branch coverage.')" class="chip-btn px-2.5 py-0.5 rounded-full bg-surface-container/80 hover:bg-surface-container border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-on-surface transition-all shrink-0">
-                + 85% Test Coverage
-              </button>
+              <span id="compile-stage-indicator" class="hidden text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="compile-stage-text">🧠 Understanding your request...</span>
+              </span>
             </div>
 
             <!-- Floating Pill Input Container -->
@@ -456,11 +434,11 @@
               
               <textarea
                 id="floating-prompt-input"
-                oninput="handleInputResize(this); recalculateHudScore();"
+                oninput="handleInputResize(this); recalculateHudScore(); updateDetectedCategory();"
                 onkeydown="handleInputKeydown(event)"
                 rows="1"
-                placeholder="Describe your system requirements, API routes, or agent task..."
-                className="w-full bg-transparent px-3 pt-1 text-xs sm:text-sm font-sans text-on-surface placeholder:text-outline focus:outline-none resize-none leading-relaxed custom-scrollbar max-h-36"
+                placeholder="Describe what you want to create in plain words..."
+                class="w-full bg-transparent px-3 pt-1 text-xs sm:text-sm font-sans text-on-surface placeholder:text-outline focus:outline-none resize-none leading-relaxed custom-scrollbar max-h-36"
                 style="outline: none; background: transparent; resize: none;"
               ></textarea>
 
@@ -485,7 +463,7 @@
             </div>
 
             <div class="text-center text-[10px] text-outline font-mono">
-              PromptArchitect pre-compiles requirements before delegating to autonomous coding agents.
+              PromptArchitect translates natural language into deterministic agent prompt blueprints.
             </div>
 
           </div>
@@ -496,9 +474,9 @@
     </div>
 
     <!-- 4. RIGHT: Claude-Style Split Artifact Canvas Drawer -->
-    <aside id="claude-artifact-panel" class="h-full w-[540px] bg-surface-container-lowest border-l border-outline-variant/20 flex flex-col justify-between transition-all duration-300 relative z-20 shadow-2xl shrink-0">
+    <aside id="claude-artifact-panel" class="hidden h-full w-[560px] bg-surface-container-lowest border-l border-outline-variant/20 flex flex-col justify-between transition-all duration-300 relative z-20 shadow-2xl shrink-0">
       
-      <!-- Artifact Header -->
+      <!-- Artifact Header with [Copy] [Edit] [Improve] [Export] Action Toolbar -->
       <div class="h-14 px-4 flex items-center justify-between border-b border-outline-variant/20 bg-surface-container/60 backdrop-blur-md">
         <div class="flex items-center gap-2">
           <div class="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center text-primary">
@@ -508,16 +486,58 @@
           <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/30">Verified</span>
         </div>
 
-        <div class="flex items-center gap-1">
-          <button onclick="copyCurrentArtifact()" class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Copy Content">
-            <span class="material-symbols-outlined text-sm">content_copy</span>
+        <!-- Action Toolbar (user-experience.md § 8) -->
+        <div class="flex items-center gap-1.5">
+          <button onclick="copyCurrentArtifact()" id="art-copy-btn" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30 transition-all active:scale-95" title="Copy Content">
+            <span class="material-symbols-outlined text-xs">content_copy</span>
+            <span id="art-copy-text">Copy</span>
           </button>
-          <button onclick="downloadArtifact()" class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Download Markdown">
-            <span class="material-symbols-outlined text-sm">download</span>
+          <button onclick="toggleArtifactEdit()" id="art-edit-btn" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30 transition-all active:scale-95" title="Edit Prompt">
+            <span class="material-symbols-outlined text-xs">edit</span>
+            <span id="art-edit-text">Edit</span>
           </button>
-          <button onclick="toggleArtifactPanel()" class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Close Panel">
+          <button onclick="improveArtifact()" id="art-improve-btn" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 transition-all font-semibold active:scale-95" title="Improve with AI">
+            <span class="material-symbols-outlined text-xs">auto_awesome</span>
+            <span>Improve</span>
+          </button>
+          <button onclick="downloadArtifact()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30 transition-all active:scale-95" title="Export Markdown">
+            <span class="material-symbols-outlined text-xs">download</span>
+            <span>Export</span>
+          </button>
+          <button onclick="toggleArtifactPanel()" class="p-1.5 ml-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Close Panel">
             <span class="material-symbols-outlined text-sm">close</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Prompt DNA Score Card (user-experience.md § 7) -->
+      <div class="px-4 py-3 bg-surface-container-high/30 border-b border-outline-variant/20">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-xs text-primary">analytics</span>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-outline font-semibold">Prompt DNA</span>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            94/100 Quality
+          </span>
+        </div>
+        <div class="grid grid-cols-4 gap-2 text-[10px] font-mono">
+          <div class="space-y-1">
+            <div class="flex justify-between text-outline"><span>Clarity</span><span class="text-on-surface font-bold">98%</span></div>
+            <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-emerald-400 w-[98%]"></div></div>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between text-outline"><span>Context</span><span class="text-on-surface font-bold">88%</span></div>
+            <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary w-[88%]"></div></div>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between text-outline"><span>Edge Cases</span><span class="text-on-surface font-bold">95%</span></div>
+            <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-tertiary w-[95%]"></div></div>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between text-outline"><span>Rigor</span><span class="text-on-surface font-bold">84%</span></div>
+            <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-amber-400 w-[84%]"></div></div>
+          </div>
         </div>
       </div>
 
@@ -535,11 +555,43 @@
         <button onclick="switchArtifactTab('schema')" id="art-tab-schema" class="px-3 py-1.5 rounded-lg text-outline hover:text-on-surface shrink-0">
           JSON Schema
         </button>
+        <button onclick="switchArtifactTab('whyBetter')" id="art-tab-why" class="px-3 py-1.5 rounded-lg text-outline hover:text-on-surface shrink-0 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">compare</span>
+          <span>Why this prompt?</span>
+        </button>
       </div>
 
-      <!-- Artifact Code/Markdown Content -->
+      <!-- Artifact Content Area -->
       <div class="flex-1 p-4 overflow-y-auto custom-scrollbar">
+        <!-- View Mode -->
         <pre id="artifact-content-view" class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed h-full whitespace-pre-wrap"></pre>
+
+        <!-- Edit Mode -->
+        <textarea id="artifact-edit-view" class="hidden w-full h-full bg-surface-container-low p-4 rounded-xl border border-primary/50 font-code-sm text-xs text-on-surface resize-none focus:outline-none leading-relaxed"></textarea>
+
+        <!-- Why Better Side-by-Side View -->
+        <div id="artifact-why-view" class="hidden space-y-4 text-xs">
+          <div class="p-3.5 rounded-xl bg-surface-container-high/40 border border-outline-variant/20 space-y-2">
+            <div class="font-mono text-[10px] text-outline uppercase tracking-wider">Original Input</div>
+            <p id="why-original-text" class="text-on-surface-variant italic"></p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface-container-low border border-primary/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-on-surface flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-primary text-sm">verified</span>
+                Architectural Invariants Added
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400">+42 Quality Score</span>
+            </div>
+            <ul class="space-y-2 text-on-surface-variant">
+              <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> Explicit system bounds, database migrations, and schema constraints added.</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> Replay defense, HMAC security envelopes, and error backoffs declared.</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> Discrete terminal verification commands specified for agent checkpoints.</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> Edge cases (network timeouts, dead-letter retries) guaranteed.</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
     </aside>
@@ -551,7 +603,7 @@
     let currentTarget = 'antigravity';
     let currentTab = 'promptA';
     let isSidebarCollapsed = false;
-    let isArtifactOpen = true;
+    let isArtifactOpen = false;
 
     const samples = {
       saas: {
@@ -609,17 +661,18 @@
       const btn = document.getElementById('artifact-toggle-btn');
       if (isArtifactOpen) {
         panel.classList.remove('hidden');
-        btn.classList.add('bg-primary/20', 'text-primary', 'border-primary');
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-semibold shadow-sm transition-all';
       } else {
         panel.classList.add('hidden');
-        btn.classList.remove('bg-primary/20', 'text-primary', 'border-primary');
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/30 text-xs font-semibold shadow-sm transition-all';
       }
     }
 
     function openArtifactPanel() {
       isArtifactOpen = true;
       document.getElementById('claude-artifact-panel').classList.remove('hidden');
-      document.getElementById('artifact-toggle-btn').classList.add('bg-primary/20', 'text-primary', 'border-primary');
+      const btn = document.getElementById('artifact-toggle-btn');
+      btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-semibold shadow-sm transition-all';
     }
 
     function toggleModelDropdown() {
@@ -655,6 +708,9 @@
       document.getElementById('floating-prompt-input').value = '';
       document.getElementById('gemini-greeting-view').classList.remove('hidden');
       document.getElementById('active-chat-view').classList.add('hidden');
+      if (isArtifactOpen) {
+        toggleArtifactPanel();
+      }
     }
 
     function injectChip(btn, text) {
@@ -690,6 +746,54 @@
       document.getElementById('hud-score-circle').setAttribute('stroke-dasharray', `${score}, 100`);
     }
 
+    let isEditing = false;
+    let customArtifactContent = null;
+
+    const stages = [
+      "🧠 Understanding your request...",
+      "🔎 Finding missing requirements...",
+      "📐 Structuring prompt blueprint...",
+      "🛡️ Adding edge-case guardrails...",
+      "🧪 Authoring terminal verification tests...",
+      "🧬 Calculating Prompt DNA Score...",
+      "✨ Compilation complete!"
+    ];
+
+    function injectInspiration(text) {
+      const input = document.getElementById('floating-prompt-input');
+      input.value = text;
+      handleInputResize(input);
+      updateDetectedCategory();
+      recalculateHudScore();
+      triggerCompilation();
+    }
+
+    function detectCategory(text) {
+      const lower = text.toLowerCase();
+      if (/saas|website|frontend|react|next\.js|landing|dashboard|tailwind|vue/i.test(lower)) {
+        return { label: 'Web Application', icon: '🌐' };
+      }
+      if (/api|microservice|backend|fastapi|express|postgres|redis|kafka|graphql|database/i.test(lower)) {
+        return { label: 'Microservice API', icon: '⚙️' };
+      }
+      if (/mobile|ios|android|react native|flutter|expo|swift/i.test(lower)) {
+        return { label: 'Mobile App', icon: '📱' };
+      }
+      if (/image|midjourney|dall-e|creative|art|logo|illustration/i.test(lower)) {
+        return { label: 'Creative / UI', icon: '🎨' };
+      }
+      return { label: 'Custom Spec', icon: '💡' };
+    }
+
+    function updateDetectedCategory() {
+      const text = document.getElementById('floating-prompt-input').value.trim();
+      const cat = detectCategory(text);
+      const catEl = document.getElementById('auto-cat-text');
+      const pill = document.getElementById('auto-cat-pill');
+      if (catEl) catEl.innerText = cat.label;
+      if (pill) pill.firstElementChild.innerText = cat.icon;
+    }
+
     function triggerCompilation() {
       const text = document.getElementById('floating-prompt-input').value.trim();
       if (!text) return;
@@ -697,19 +801,28 @@
       document.getElementById('gemini-greeting-view').classList.add('hidden');
       document.getElementById('active-chat-view').classList.remove('hidden');
       document.getElementById('chat-user-text').innerText = text;
+      customArtifactContent = null;
 
-      // Animate pipeline
+      const stageIndicator = document.getElementById('compile-stage-indicator');
+      const stageText = document.getElementById('compile-stage-text');
+      stageIndicator.classList.remove('hidden');
+
+      // Animate pipeline & progress messages
       let stage = 1;
       const interval = setInterval(() => {
         if (stage <= 7) {
           const el = document.getElementById(`p-${stage}`);
-          el.className = 'p-1.5 rounded bg-primary/30 text-primary border border-primary font-bold animate-pulse';
+          if (el) el.className = 'p-1.5 rounded bg-primary/30 text-primary border border-primary font-bold animate-pulse';
+          stageText.innerText = stages[stage - 1];
           stage++;
         } else {
           clearInterval(interval);
           for (let i = 1; i <= 7; i++) {
-            document.getElementById(`p-${i}`).className = 'p-1.5 rounded bg-surface-container-high text-emerald-400 border border-emerald-500/30';
+            const el = document.getElementById(`p-${i}`);
+            if (el) el.className = 'p-1.5 rounded bg-surface-container-high text-emerald-400 border border-emerald-500/30';
           }
+          stageText.innerText = stages[6];
+          setTimeout(() => stageIndicator.classList.add('hidden'), 2000);
           updateArtifactContent();
           openArtifactPanel();
         }
@@ -718,21 +831,112 @@
 
     function switchArtifactTab(tab) {
       currentTab = tab;
-      const tabs = ['promptA', 'promptB', 'native', 'schema'];
+      const tabs = ['promptA', 'promptB', 'native', 'schema', 'whyBetter'];
       tabs.forEach(t => {
         const btn = document.getElementById(
-          t === 'promptA' ? 'art-tab-a' : t === 'promptB' ? 'art-tab-b' : t === 'native' ? 'art-tab-native' : 'art-tab-schema'
+          t === 'promptA' ? 'art-tab-a' :
+          t === 'promptB' ? 'art-tab-b' :
+          t === 'native' ? 'art-tab-native' :
+          t === 'schema' ? 'art-tab-schema' : 'art-tab-why'
         );
+        if (!btn) return;
         if (t === tab) {
-          btn.className = 'px-3 py-1.5 rounded-lg bg-primary/20 text-primary font-bold border border-primary/30 shrink-0';
+          btn.className = 'px-3 py-1.5 rounded-lg bg-primary/20 text-primary font-bold border border-primary/30 shrink-0 flex items-center gap-1';
         } else {
-          btn.className = 'px-3 py-1.5 rounded-lg text-outline hover:text-on-surface shrink-0';
+          btn.className = 'px-3 py-1.5 rounded-lg text-outline hover:text-on-surface shrink-0 flex items-center gap-1';
         }
       });
-      updateArtifactContent();
+
+      const contentView = document.getElementById('artifact-content-view');
+      const editView = document.getElementById('artifact-edit-view');
+      const whyView = document.getElementById('artifact-why-view');
+
+      if (tab === 'whyBetter') {
+        contentView.classList.add('hidden');
+        editView.classList.add('hidden');
+        whyView.classList.remove('hidden');
+        const rawText = document.getElementById('floating-prompt-input').value.trim() || 'Build a full-stack SaaS application';
+        document.getElementById('why-original-text').innerText = `"${rawText}"`;
+      } else {
+        whyView.classList.add('hidden');
+        if (isEditing) {
+          contentView.classList.add('hidden');
+          editView.classList.remove('hidden');
+        } else {
+          contentView.classList.remove('hidden');
+          editView.classList.add('hidden');
+        }
+        updateArtifactContent();
+      }
+    }
+
+    function toggleArtifactEdit() {
+      if (currentTab === 'whyBetter') {
+        switchArtifactTab('promptA');
+      }
+      isEditing = !isEditing;
+      const contentView = document.getElementById('artifact-content-view');
+      const editView = document.getElementById('artifact-edit-view');
+      const editBtnText = document.getElementById('art-edit-text');
+      const editBtn = document.getElementById('art-edit-btn');
+
+      if (isEditing) {
+        editView.value = customArtifactContent || contentView.innerText;
+        contentView.classList.add('hidden');
+        editView.classList.remove('hidden');
+        editBtnText.innerText = 'Save';
+        editBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-semibold';
+      } else {
+        customArtifactContent = editView.value;
+        contentView.innerText = customArtifactContent;
+        editView.classList.add('hidden');
+        contentView.classList.remove('hidden');
+        editBtnText.innerText = 'Edit';
+        editBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30';
+      }
+    }
+
+    function improveArtifact() {
+      const btn = document.getElementById('art-improve-btn');
+      btn.innerHTML = '<span class="material-symbols-outlined text-xs animate-spin">refresh</span><span>Improving...</span>';
+      setTimeout(() => {
+        const text = document.getElementById('floating-prompt-input').value.trim() || 'Webhook Dispatcher';
+        customArtifactContent = `# PROMPT A: OPTIMIZED ARCHITECTURAL BLUEPRINT (REPAIRED v2.4)
+<!-- Self-Correction Applied: +3 Security Bounds, Zero-Latency Contract -->
+
+<system_role>
+You are the Principal Solutions Architect and Security Engineer.
+Operate under strict zero-tolerance failure guidelines.
+</system_role>
+
+<enhanced_specifications>
+${text}
+
+### Architectural Guarantees:
+1. Enforce atomic transactions with rollbacks on partial failure.
+2. Require cryptographic token rotation every 15 minutes.
+3. Dead-Letter-Queue (DLQ) threshold bound to exactly 3 retries.
+4. Terminal checkpoints must pass with 100% test coverage before PR.
+</enhanced_specifications>`;
+
+        if (currentTab === 'whyBetter') {
+          switchArtifactTab('promptA');
+        } else {
+          document.getElementById('artifact-content-view').innerText = customArtifactContent;
+        }
+        btn.innerHTML = '<span class="material-symbols-outlined text-xs">auto_awesome</span><span>Improved!</span>';
+        setTimeout(() => {
+          btn.innerHTML = '<span class="material-symbols-outlined text-xs">auto_awesome</span><span>Improve</span>';
+        }, 2000);
+      }, 800);
     }
 
     function updateArtifactContent() {
+      if (customArtifactContent && currentTab === 'promptA') {
+        document.getElementById('artifact-content-view').innerText = customArtifactContent;
+        return;
+      }
+
       const text = document.getElementById('floating-prompt-input').value.trim() || 'Multi-tenant webhook dispatcher microservice';
       const view = document.getElementById('artifact-content-view');
 
@@ -807,7 +1011,7 @@ ${text}
 ## Terminal Checkpoints:
 - Run test validation suite after atomic stage completion.`;
         }
-      } else {
+      } else if (currentTab === 'schema') {
         view.innerText = JSON.stringify({
           "$schema": "http://json-schema.org/draft-07/schema#",
           "title": "CanonicalRequirementSpec",
@@ -823,13 +1027,15 @@ ${text}
     }
 
     function copyCurrentArtifact() {
-      const text = document.getElementById('artifact-content-view').innerText;
+      const text = customArtifactContent || document.getElementById('artifact-content-view').innerText;
       navigator.clipboard.writeText(text);
-      alert('Artifact copied to clipboard!');
+      const copyText = document.getElementById('art-copy-text');
+      copyText.innerText = 'Copied!';
+      setTimeout(() => copyText.innerText = 'Copy', 2000);
     }
 
     function downloadArtifact() {
-      const text = document.getElementById('artifact-content-view').innerText;
+      const text = customArtifactContent || document.getElementById('artifact-content-view').innerText;
       const element = document.createElement("a");
       const file = new Blob([text], { type: 'text/plain' });
       element.href = URL.createObjectURL(file);
@@ -846,8 +1052,9 @@ ${text}
       setTimeout(() => btnText.innerText = 'Share', 2000);
     }
 
-    // Default init with SaaS sample
-    loadSample('saas');
+    // Default init in clean state
+    startNewCompilation();
+    updateDetectedCategory();
   </script>
 </body>
 </html>

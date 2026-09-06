@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePromptStore } from '../../store/usePromptStore';
 import { GeminiSidebar } from './GeminiSidebar';
 import { FloatingWorkspaceNav } from './FloatingWorkspaceNav';
@@ -8,9 +8,22 @@ import { FloatingInputBar } from './FloatingInputBar';
 import { ClaudeArtifactPanel } from './ClaudeArtifactPanel';
 
 export const SandboxShell: React.FC = () => {
-  const { rawPrompt } = usePromptStore();
+  const { rawPrompt, clearPrompt } = usePromptStore();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isArtifactOpen, setIsArtifactOpen] = useState(false);
+
+  // Ensure sandbox arrives in a clean state
+  useEffect(() => {
+    clearPrompt();
+    setIsArtifactOpen(false);
+  }, [clearPrompt]);
+
+  // Close artifact panel whenever prompt is cleared
+  useEffect(() => {
+    if (!rawPrompt.trim()) {
+      setIsArtifactOpen(false);
+    }
+  }, [rawPrompt]);
 
   // Auto-open artifact panel when compilation completes
   const handleCompileStart = () => {

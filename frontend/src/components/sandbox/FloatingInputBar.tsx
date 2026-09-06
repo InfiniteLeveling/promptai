@@ -1,12 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { usePromptStore } from '../../store/usePromptStore';
-import { AVAILABLE_CHIPS } from '../../lib/constants';
 import {
   ArrowUp,
   Mic,
   Paperclip,
-  Sparkles,
   Zap,
+  Sparkles,
   Check
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -19,11 +18,11 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({ onCompileSta
   const {
     rawPrompt,
     setRawPrompt,
-    selectedChipIds,
-    toggleChip,
     runCompilation,
     isCompiling,
-    targetFormat
+    compilingStage,
+    targetFormat,
+    detectedCategory
   } = usePromptStore();
 
   const [isListening, setIsListening] = useState(false);
@@ -63,32 +62,30 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({ onCompileSta
     setRawPrompt(rawPrompt.trim() + " Ingested repo dependencies: Prisma 5.12, Redis 7.2, TypeScript 5.4.");
   };
 
+  // Meaningful Stage Labels (user-experence.md § 14)
+  const getStageMessage = (stage: number) => {
+    switch (stage) {
+      case 1: return '🧠 Understanding your request...';
+      case 2: return '🔎 Finding missing requirements...';
+      case 3: return '🧩 Structuring architectural contract...';
+      case 4: return '✍️ Synthesizing master blueprint...';
+      case 5: return '🔍 Validating quality score...';
+      case 6: return '✨ Polishing edge defenses...';
+      case 7: return '✓ Master blueprint compiled!';
+      default: return 'Synthesizing specification...';
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 pb-4 space-y-2 select-none">
-      {/* Floating Clarification Chips Shelf */}
-      <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar py-1 text-xs">
-        <span className="text-[10px] font-mono text-outline uppercase tracking-wider flex items-center gap-1 shrink-0">
-          <Sparkles className="w-3 h-3 text-tertiary" /> Constraints:
-        </span>
-        {AVAILABLE_CHIPS.map((chip) => {
-          const isSelected = selectedChipIds.includes(chip.id);
-          return (
-            <button
-              key={chip.id}
-              onClick={() => toggleChip(chip.id)}
-              className={cn(
-                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200 border shrink-0 flex items-center gap-1",
-                isSelected
-                  ? "bg-primary/20 border-primary text-primary shadow-[0_0_12px_rgba(99,102,241,0.3)]"
-                  : "bg-surface-container/70 border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
-              )}
-            >
-              {isSelected && <Check className="w-3 h-3 text-primary" />}
-              <span>{chip.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      
+      {/* Meaningful Progress Banner during Compilation (user-experence.md § 14) */}
+      {isCompiling && (
+        <div className="flex items-center justify-center gap-2 py-1 px-3 rounded-full bg-surface-container border border-primary/30 text-xs font-mono text-primary animate-pulse w-fit mx-auto shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 animate-spin text-tertiary" />
+          <span>{getStageMessage(compilingStage)}</span>
+        </div>
+      )}
 
       {/* Floating Capsule Input Box (Gemini / Claude / ChatGPT style) */}
       <div className="relative rounded-3xl border border-outline-variant/40 bg-surface-container/85 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.5)] transition-all focus-within:border-primary focus-within:shadow-[0_0_30px_rgba(99,102,241,0.25)] p-2 sm:p-2.5 flex flex-col justify-between">
@@ -100,14 +97,14 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({ onCompileSta
           onChange={(e) => setRawPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          placeholder="Describe your system requirements, API routes, or agent task..."
+          placeholder="Describe what you want to build in your own words (e.g., website for donating clothes)..."
           className="w-full bg-transparent px-3 pt-1 text-xs sm:text-sm font-sans text-on-surface placeholder:text-outline focus:outline-none resize-none leading-relaxed custom-scrollbar max-h-40"
         />
 
         {/* Action Controls Bar */}
         <div className="flex items-center justify-between pt-2 px-1 text-xs">
-          {/* Left Buttons: Paperclip & Mic */}
-          <div className="flex items-center gap-1">
+          {/* Left Buttons: Paperclip & Mic & Auto-Detected Category Pill */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={handleAttachment}
               className="p-2 rounded-full text-outline hover:text-on-surface hover:bg-surface-container-high transition-colors"
@@ -127,6 +124,15 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({ onCompileSta
             >
               <Mic className="w-4 h-4" />
             </button>
+
+            {/* Prompt Type Auto-Detection Badge (user-experence.md § 11) */}
+            {detectedCategory && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-[10px] font-mono text-primary animate-in fade-in duration-300">
+                <Check className="w-3 h-3 text-primary" />
+                <span>{detectedCategory}</span>
+              </span>
+            )}
+
             <span className="hidden sm:inline text-[10px] font-mono text-outline uppercase ml-1">
               Target: {targetFormat}
             </span>
@@ -157,8 +163,9 @@ export const FloatingInputBar: React.FC<FloatingInputBarProps> = ({ onCompileSta
           </button>
         </div>
       </div>
+      
       <div className="text-center text-[10px] text-outline font-mono">
-        PromptArchitect can make errors. Verify generated architectural contracts before feeding coding agents.
+        PromptArchitect compiles high-fidelity requirements without requiring prompt engineering skills.
       </div>
     </div>
   );

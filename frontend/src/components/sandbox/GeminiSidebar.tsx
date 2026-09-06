@@ -37,9 +37,6 @@ export const GeminiSidebar: React.FC<GeminiSidebarProps> = ({ isCollapsed, onTog
 
   const recentCompilations = [
     { id: 'saas', name: 'Webhook Dispatcher', score: 94, lang: 'TypeScript' },
-    { id: 'microservice', name: 'Reconciliation Worker', score: 92, lang: 'Go' },
-    { id: 'mobile', name: 'Encrypted Notes App', score: 90, lang: 'React Native' },
-    { id: 'canvas', name: '3D Solar System', score: 91, lang: 'Three.js' },
   ];
 
   return (
