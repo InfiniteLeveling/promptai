@@ -245,3 +245,21 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
     throw err;
   }
 }
+
+if (process.argv[1]?.includes('migrate-legacy')) {
+  import('dotenv/config').then(async () => {
+    const { supabaseAdmin } = await import('../src/infrastructure/database/supabaseClient.js');
+    console.log('\n--- Starting Legacy db.json Migration to Supabase ---');
+    runLegacyMigration({ client: supabaseAdmin })
+      .then((rep) => {
+        console.log('--- Migration Completed Successfully ---');
+        console.log(JSON.stringify(rep, null, 2));
+        process.exit(0);
+      })
+      .catch((err) => {
+        console.error('Migration failed:', err);
+        process.exit(1);
+      });
+  });
+}
+

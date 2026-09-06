@@ -1,0 +1,540 @@
+===============================================================================
+PROMPTARCHITECT AI — ENTERPRISE BACKEND SETUP & CONFIGURATION GUIDE
+===============================================================================
+Version: 3.0.0
+Stack: Node.js 20/24+ LTS | TypeScript 5.x | Fastify 5.x | Supabase PostgreSQL
+Target File: backend-setup-guide.txt
+===============================================================================
+
+-------------------------------------------------------------------------------
+TABLE OF CONTENTS
+-------------------------------------------------------------------------------
+1. ARCHITECTURE & REPOSITORY OVERVIEW
+2. PREREQUISITES
+3. STEP 1: INSTALL MONOREPO DEPENDENCIES
+4. STEP 2: CONFIGURE ENVIRONMENT VARIABLES (.env)
+5. STEP 3: EXECUTE SUPABASE DATABASE MIGRATIONS
+6. STEP 4: CONFIGURE SUPABASE AUTHENTICATION
+7. STEP 5: CREATE SUPABASE STORAGE BUCKETS
+8. STEP 6: BUILD MONOREPO PACKAGES
+9. STEP 7: RUN TEST SUITE VERIFICATION
+10. STEP 8: RUN PRODUCTION GATES AUDIT
+11. STEP 9: MIGRATE LEGACY DATA (IF UPGRADING FROM DB.JSON)
+12. STEP 10: START THE FASTIFY BACKEND SERVER
+13. STEP 11: START THE ASYNCHRONOUS COMPILATION WORKER
+14. STEP 12: CONNECT THE FRONTEND CLIENT
+15. STEP 13: VERIFY API ENDPOINTS (CURL CHEAT SHEET)
+16. STEP 14: STRIPE BILLING & WEBHOOK SETUP (OPTIONAL)
+17. TROUBLESHOOTING & FAQ
+18. COMMAND SUMMARY CHEAT SHEET
+
+
+===============================================================================
+1. ARCHITECTURE & REPOSITORY OVERVIEW
+===============================================================================
+The PromptArchitect AI backend has been rebuilt from a legacy single-file Express
+JSON backend into a production-grade, multi-tenant cloud architecture:
+
+* Fastify 5.x Server: High-throughput API gateway with Zod schema validation,
+  Helmet security headers, strict CORS, and structured Pino logging.
+* Pure Compiler Pipeline (@promptarchitect/compiler): Deterministic 7-stage AST
+  orchestration engine without database or HTTP side-effects.
+* Canonical Type Contracts (@promptarchitect/contracts): Shared TypeScript types,
+  Draft-07 JSON schemas, and Ajv runtime validation.
+* Supabase PostgreSQL: 18 relational tables with Row Level Security (RLS),
+  deterministic UUID keys, immutable audit ledgers, and atomic stored procedures.
+* Double-Entry Quota Ledger: Prevents concurrency race conditions, credit theft,
+  and cross-UTC quota leaks using reservation and commit transactions.
+* Background Compilation Worker: Polling daemon using Postgres row-level locks
+  (FOR UPDATE SKIP LOCKED) with lease heartbeats and retry backoff.
+* 100% Legacy Parity: Full backward compatibility with the React frontend for all
+  15 legacy endpoints (/api/prompts, /api/templates, /api/usage, /api/ingest/*).
+
+Folder Structure:
+  prompt-maker/
+  ├── packages/
+  │   ├── contracts/            <- Shared TypeScript interfaces & JSON schemas
+  │   └── compiler/             <- 7-stage pure compiler AST pipeline
+  ├── src/
+  │   ├── app.ts                <- Fastify application builder & middleware
+  │   ├── server.ts             <- Fastify HTTP server entrypoint (Port 3000)
+  │   ├── modules/
+  │   │   ├── auth/             <- Supabase JWT verification & guest handling
+  │   │   ├── billing/          <- Stripe subscriptions & webhook handler
+  │   │   ├── blueprints/       <- Enterprise template blueprints repository
+  │   │   ├── compilation/      <- Sync & async compilation runs
+  │   │   ├── jobs/             <- Background worker daemon (workerRunner.ts)
+  │   │   └── storage/          <- Supabase Storage signed URLs & MIME guard
+  │   ├── compatibility/        <- Legacy Express /api route compatibility layer
+  │   └── infrastructure/       <- Supabase client, Pino logger, SSRF filter
+  ├── supabase/
+  │   ├── migrations/           <- 4 production SQL migration scripts
+  │   └── seed.sql              <- Plans, entitlements & enterprise blueprints
+  ├── scripts/
+  │   ├── migrate-legacy.ts     <- Legacy db.json to Supabase migration runner
+  │   ├── verify-migration.ts   <- SHA-256 data integrity verification runner
+  │   └── verify-production-gates.ts <- 6-gate enterprise configuration validator
+  └── tests/                    <- 19 Vitest test suites (120 tests)
+
+
+===============================================================================
+2. PREREQUISITES
+===============================================================================
+Before setting up the backend, ensure you have the following installed/ready:
+
+1. Node.js:
+   - Version: Node.js 20.x or 24.x LTS (Recommended: v24.20.0 or v20.x)
+   - Verify in terminal:
+       node -v
+       npm -v
+
+2. Supabase Account:
+   - Create a free account at: https://supabase.com
+   - Create a new project (e.g., "promptarchitect-ai")
+   - Note your Project URL and API Keys (Anon Publishable & Service Role Secret)
+   - Alternatively, you can use local Supabase via Docker CLI:
+       npx supabase init
+       npx supabase start
+
+3. Google Gemini AI API Key (Optional but recommended for live LLM runs):
+   - Obtain a key from Google AI Studio: https://aistudio.google.com/
+   - Key format: AQ.Ab8RN... or AIzaSy...
+
+4. Git:
+   - To track codebase versions and synchronize branches.
+
+
+===============================================================================
+3. STEP 1: INSTALL MONOREPO DEPENDENCIES
+===============================================================================
+Open your terminal in the root directory of the repository (e.g., "d:\prompt maker"):
+
+1. Install root and workspace dependencies:
+   npm install
+
+2. Verify that npm installed all packages cleanly without dependency conflicts.
+
+
+===============================================================================
+4. STEP 2: CONFIGURE ENVIRONMENT VARIABLES (.env)
+===============================================================================
+1. Create a file named ".env" in the root directory ("d:\prompt maker\.env"):
+   (You can copy from the provided ".env.example" template)
+
+2. Fill in the following variables:
+
+-------------------------------------------------------------------------------
+# SERVER CONFIGURATION
+PORT=3000
+HOST=0.0.0.0
+NODE_ENV=development
+LOG_LEVEL=info
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# SUPABASE CONNECTION (From Supabase Dashboard -> Project Settings -> API)
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# SUPABASE DIRECT POSTGRES POOLER (From Settings -> Database -> Connection URI)
+DATABASE_URL=postgresql://postgres.your-project-ref:your-db-password@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+
+# GOOGLE GEMINI AI (From Google AI Studio: https://aistudio.google.com/)
+AI_API_KEY=your_gemini_api_key_here
+AI_PRIMARY_MODEL=gemini-1.5-flash
+AI_FALLBACK_MODEL=gemini-1.5-pro
+
+# GITHUB INTEGRATION (Optional - for GitHub repo analysis via /api/ingest/github)
+# Generate from: https://github.com/settings/tokens (public_repo scope)
+GITHUB_TOKEN=ghp_your_personal_access_token
+
+# STRIPE BILLING (Optional for local development / testing)
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret
+STRIPE_PRO_PRICE_ID=price_pro_monthly
+STRIPE_DEV_PRICE_ID=price_dev_monthly
+
+# STORAGE BUCKETS
+STORAGE_BUCKET_ATTACHMENTS=prompt-attachments
+STORAGE_BUCKET_AVATARS=user-avatars
+
+# BACKGROUND COMPILATION WORKER
+WORKER_ID=worker-01
+WORKER_POLL_INTERVAL_MS=2000
+WORKER_LEASE_SECONDS=60
+WORKER_STALE_CHECK_MS=60000
+-------------------------------------------------------------------------------
+
+CRITICAL SECURITY NOTE:
+* Never expose SUPABASE_SERVICE_ROLE_KEY or STRIPE_SECRET_KEY to the client!
+* SUPABASE_ANON_KEY is safe for browser clients.
+* SUPABASE_SERVICE_ROLE_KEY is used exclusively server-side by the backend.
+
+
+===============================================================================
+5. STEP 3: EXECUTE SUPABASE DATABASE MIGRATIONS
+===============================================================================
+You must execute the 4 migration scripts and the seed script in order.
+
+METHOD A: Via Supabase Web Dashboard (Recommended for hosted Supabase)
+1. Go to your Supabase Project Dashboard: https://supabase.com/dashboard
+2. In the left navigation menu, click "SQL Editor".
+3. Click "New query".
+4. Copy, paste, and run each of the following files IN NUMERICAL ORDER:
+
+   Query 1: supabase/migrations/20260906000001_initial_schema.sql
+     -> Creates all 18 tables: users, plans, subscriptions, prompts,
+        blueprints, compilation runs/jobs/attempts, quota ledgers, etc.
+     -> Sets up immutability triggers and automatic auth.users user profile sync.
+     -> Click "Run" (ensure "Success. No rows returned" is shown).
+
+   Query 2: supabase/migrations/20260906000002_rls_and_security.sql
+     -> Enables Row Level Security (RLS) on all 18 tables.
+     -> Applies strict tenant isolation policies so users only access their data.
+     -> Sets up column-level security and admin authorization helper.
+     -> Click "Run".
+
+   Query 3: supabase/migrations/20260906000003_quota_functions.sql
+     -> Creates stored procedures:
+          * reserve_compilation_quota()
+          * commit_compilation_quota()
+          * refund_compilation_quota()
+          * recover_stale_quota_reservations()
+     -> Enforces concurrency safety and credit guarantees.
+     -> Click "Run".
+
+   Query 4: supabase/migrations/20260906000004_job_and_worker_functions.sql
+     -> Creates stored procedures:
+          * claim_next_compilation_job() (Uses FOR UPDATE SKIP LOCKED)
+          * worker_heartbeat() (Extends job lease)
+          * finalize_compilation_job() (Records tokens, cost, completion)
+     -> Click "Run".
+
+   Query 5: supabase/seed.sql
+     -> Seeds subscription tiers: 'free' (100 req/mo), 'pro' (2,000 req/mo),
+        and 'developer' (10,000 req/mo).
+     -> Seeds 5 production blueprints (Enterprise Payment Reconciler, Multi-Agent
+        Orchestration, E-Commerce Platform, Microservices Mesh, RAG Pipeline).
+     -> Click "Run".
+
+METHOD B: Via Supabase CLI (If using Supabase CLI locally)
+1. Link to your project:
+   npx supabase link --project-ref your-project-ref
+2. Push all migrations:
+   npx supabase db push
+
+
+===============================================================================
+6. STEP 4: CONFIGURE SUPABASE AUTHENTICATION
+===============================================================================
+PromptArchitect AI supports both registered users (Email/Password) and anonymous
+guest users.
+
+1. Open your Supabase Dashboard -> "Authentication" -> "Providers".
+2. Under "Email":
+   - Ensure "Enable Email provider" is turned ON.
+   - For local development, you may uncheck "Confirm email" to log in instantly.
+3. Under "Anonymous Sign-Ins":
+   - Turn ON "Allow anonymous sign-ins".
+   - This allows users to test prompts and generate specs immediately without
+     having to sign up first.
+4. (Optional) URL Configuration:
+   - In "Authentication" -> "URL Configuration", set "Site URL" to:
+     http://localhost:5173 (or your deployed frontend domain).
+
+
+===============================================================================
+7. STEP 5: CREATE SUPABASE STORAGE BUCKETS
+===============================================================================
+PromptArchitect AI uses Supabase Storage for user attachments and avatars.
+
+1. Open your Supabase Dashboard -> "Storage".
+2. Create Bucket 1:
+   - Name: prompt-attachments
+   - Public bucket: Disabled (Keep PRIVATE for security)
+   - Allowed MIME types: image/png, image/jpeg, image/webp, application/pdf, text/plain
+   - File size limit: 10 MB
+3. Create Bucket 2:
+   - Name: user-avatars
+   - Public bucket: Enabled (or Private with signed URLs)
+   - Allowed MIME types: image/png, image/jpeg, image/webp
+   - File size limit: 5 MB
+
+
+===============================================================================
+8. STEP 6: BUILD MONOREPO PACKAGES
+===============================================================================
+Before running the server or test suites, compile the internal workspace
+packages (@promptarchitect/contracts and @promptarchitect/compiler):
+
+1. Run the build script from the root directory:
+   npm run build:packages
+
+2. This generates the CommonJS and ESM output in:
+   - packages/contracts/dist/
+   - packages/compiler/dist/
+
+
+===============================================================================
+9. STEP 7: RUN TEST SUITE VERIFICATION
+===============================================================================
+Verify that the entire backend system and all subsystems are 100% operational:
+
+1. Run all 19 test suites:
+   npm test
+
+Expected output:
+   ✓ packages/contracts/tests (Draft-07 schema & Ajv assertions)
+   ✓ packages/compiler/tests (7-stage pure compiler AST pipeline)
+   ✓ tests/schema.test.ts (18 table constraints & check guards)
+   ✓ tests/rls.test.ts (Row-level security tenant isolation)
+   ✓ tests/quota.test.ts (Double-entry reservations & stale recovery)
+   ✓ tests/server.test.ts (Fastify plugins, raw body, CORS, security)
+   ✓ tests/auth.test.ts (Supabase JWT verification & guest handling)
+   ✓ tests/repositories.test.ts (Prompts, runs, blueprints CRUD)
+   ✓ tests/providers.test.ts (Gemini AI provider & mock fallbacks)
+   ✓ tests/idempotency.test.ts (Concurrent duplicate request caching)
+   ✓ tests/compilation.test.ts (Sync & async compilation routes)
+   ✓ tests/billing_storage.test.ts (Stripe webhooks & signed storage)
+   ✓ tests/jobs.test.ts (Worker claim SKIP LOCKED & heartbeats)
+   ✓ tests/deletion.test.ts (Account deletion cascade & cleanup)
+   ✓ tests/compatibility.test.ts (15 legacy Express routes parity)
+   ✓ tests/migration.test.ts (Legacy db.json migration & locking)
+   ✓ tests/resilience.test.ts (Circuit breaker & primary-fallback AI)
+   ✓ tests/production_gates.test.ts (12 enterprise cutover checks)
+   ✓ tests/canary.test.ts (Zero-downtime canary deployment gateway)
+
+   All 19 test suites and 120 tests must pass.
+
+
+===============================================================================
+10. STEP 8: RUN PRODUCTION GATES AUDIT
+===============================================================================
+Execute the automated enterprise configuration audit script:
+
+   npm run verify:gates
+   (or: npx tsx scripts/verify-production-gates.ts)
+
+Expected output:
+   ======================================================
+    PROMPTARCHITECT AI — PRODUCTION CONFIGURATION GATES
+   ======================================================
+   [Gate 1] Pure Compiler Domain Isolation: PASSED ✓
+   [Gate 2] Canonical Schema Validation: PASSED ✓
+   [Gate 3] SSRF Defense & IP Guardrails: PASSED ✓
+   [Gate 4] Storage Executable & Size Guardrails: PASSED ✓
+   [Gate 5] Quota Double-Entry Reservations: PASSED ✓
+   [Gate 6] Worker Claiming & Lease Contracts: PASSED ✓
+   ======================================================
+   OVERALL STATUS: READY FOR CUTOVER ✓
+
+
+===============================================================================
+11. STEP 9: MIGRATE LEGACY DATA (IF UPGRADING FROM DB.JSON)
+===============================================================================
+If you have legacy prompts, templates, or usage counters in "server/data/db.json":
+
+1. Run the legacy migration script:
+   npm run migrate:legacy
+   (or: npx tsx scripts/migrate-legacy.ts)
+
+   This script:
+   - Acquires an atomic migration lock in Supabase to prevent concurrent runs.
+   - Computes a SHA-256 checksum of server/data/db.json.
+   - Generates deterministic UUIDs from legacy string IDs (e.g., prompt_123).
+   - Migrates legacy users, prompts, blueprints, and quota ledgers.
+   - Generates "scripts/migration-report.json".
+
+2. Run the migration verification script:
+   npm run verify:legacy
+   (or: npx tsx scripts/verify-migration.ts)
+
+   This verifies:
+   - Every legacy prompt and blueprint exists in the database.
+   - SHA-256 source hash matches.
+   - Output shows: "Migration verified 100% valid!"
+
+
+===============================================================================
+12. STEP 10: START THE FASTIFY BACKEND SERVER
+===============================================================================
+You can run the backend server in two modes:
+
+MODE A: Development Mode (Auto-reloads on file changes)
+   npm run dev:fastify
+   (or: npx tsx watch src/server.ts)
+
+MODE B: Standard Production Mode
+   npm run start:fastify
+   (or: npx tsx src/server.ts)
+
+Terminal output:
+   {"level":30,"msg":"PromptArchitect Fastify Server listening at http://0.0.0.0:3000"}
+
+The Fastify server is now actively accepting HTTP requests on port 3000!
+
+
+===============================================================================
+13. STEP 11: START THE ASYNCHRONOUS COMPILATION WORKER
+===============================================================================
+In a separate terminal window, start the background compilation worker daemon.
+This process continuously monitors the queue and executes async compilation jobs:
+
+   npm run worker
+   (or: npx tsx src/modules/jobs/workerRunner.ts)
+
+Terminal output:
+   {"level":30,"workerId":"worker-01","pollIntervalMs":2000,"msg":"PromptArchitect Compilation Worker started"}
+
+Worker Capabilities:
+- Polls Supabase for queued compilation jobs using RPC claim_next_compilation_job().
+- Uses FOR UPDATE SKIP LOCKED to guarantee no two workers process the same job.
+- Sends heartbeat pings every 15 seconds to maintain job lease.
+- Automatically executes the 7-stage compiler pipeline on the job payload.
+- Periodically triggers recover_stale_quota_reservations() to refund unused
+  reservations from crashed processes.
+
+
+===============================================================================
+14. STEP 12: CONNECT THE FRONTEND CLIENT
+===============================================================================
+The React 19 frontend is located in "frontend/".
+
+1. Configure Frontend Environment ("frontend/.env"):
+   Create or edit "frontend/.env" with:
+   ----------------------------------------------------------------------------
+   VITE_API_URL=http://localhost:3000/api
+   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   ----------------------------------------------------------------------------
+
+2. Start the Frontend Development Server:
+   npm run dev
+   (or: npm --prefix frontend run dev)
+
+3. Open your browser at:
+   http://localhost:5173
+
+Backward Compatibility Note:
+The Fastify backend serves all legacy endpoints under /api/* with identical
+payload contracts. The frontend will communicate seamlessly with the new backend
+without requiring any component changes!
+
+
+===============================================================================
+15. STEP 13: VERIFY API ENDPOINTS (CURL CHEAT SHEET)
+===============================================================================
+Run these curl commands from any terminal to verify server endpoints:
+
+1. Health Check:
+   curl -i http://localhost:3000/health
+   Response: 200 OK
+   {"status":"ok","timestamp":"...","uptime":...,"version":"3.0.0"}
+
+2. Get Templates / Blueprints:
+   curl -i http://localhost:3000/api/templates
+   Response: 200 OK (Returns array of blueprints)
+
+3. Get User Usage & Quota:
+   curl -i http://localhost:3000/api/usage
+   Response: 200 OK
+   {"success":true,"data":{"used":...,"limit":100,"remaining":...}}
+
+4. Fetch All Prompts:
+   curl -i http://localhost:3000/api/prompts
+   Response: 200 OK (Returns array of prompts)
+
+5. Synchronous Compilation Pipeline:
+   curl -i -X POST http://localhost:3000/api/v1/compilation/sync \
+     -H "Content-Type: application/json" \
+     -d "{\"prompt\":\"Build a SaaS billing dashboard with Stripe and React\",\"selectedChips\":[\"react\",\"typescript\"],\"targetAgent\":\"antigravity\"}"
+   Response: 200 OK (Returns canonical compiled spec and diagnostic score)
+
+6. Submit Asynchronous Compilation Job:
+   curl -i -X POST http://localhost:3000/api/v1/compilation/async \
+     -H "Content-Type: application/json" \
+     -d "{\"prompt\":\"Synthesize microservices architecture\",\"targetAgent\":\"cursor\"}"
+   Response: 202 Accepted (Returns { "jobId": "...", "status": "queued" })
+
+
+===============================================================================
+16. STEP 14: STRIPE BILLING & WEBHOOK SETUP (OPTIONAL)
+===============================================================================
+If you want to test subscription checkout and billing webhooks locally:
+
+1. Install the Stripe CLI:
+   https://docs.stripe.com/stripe-cli
+
+2. Authenticate the CLI:
+   stripe login
+
+3. Forward webhooks to your local Fastify server:
+   stripe listen --forward-to localhost:3000/api/v1/billing/webhook
+
+4. The CLI will output a webhook secret:
+   > Ready! Your webhook signing secret is whsec_xxxxxxxxxxxx
+
+5. Copy this secret into your ".env":
+   STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxx
+
+6. Trigger test events:
+   stripe trigger customer.subscription.created
+   stripe trigger customer.subscription.deleted
+
+
+===============================================================================
+17. TROUBLESHOOTING & FAQ
+===============================================================================
+
+Q1: Fastify fails to start with "listen EADDRINUSE: address already in use :::3000"?
+A1: Another process is using port 3000 (such as the legacy server or another app).
+    To resolve:
+    - On Windows (PowerShell):
+        Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process -Force
+    - Or change PORT in ".env" to 3001:
+        PORT=3001
+        (Update VITE_API_URL in frontend/.env accordingly).
+
+Q2: Supabase returns "JWT expired" or "401 Unauthorized"?
+A2: Ensure your SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are copied
+    accurately without trailing spaces or newline characters from the Supabase
+    dashboard.
+
+Q3: Migrations fail with "relation already exists"?
+A3: If tables were already partially created, run:
+    DROP SCHEMA public CASCADE;
+    CREATE SCHEMA public;
+    GRANT ALL ON SCHEMA public TO postgres;
+    GRANT ALL ON SCHEMA public TO public;
+    Then re-run the 4 migration scripts and seed.sql.
+
+Q4: Gemini AI fails with "API key not valid"?
+A4: Check that AI_API_KEY is set in ".env". If empty, the backend automatically
+    falls back to mock AI generation in development/test mode so your workflow
+    is never blocked.
+
+Q5: CORS error in browser console when calling backend?
+A5: Ensure ALLOWED_ORIGINS in ".env" includes your frontend URL:
+    ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+
+===============================================================================
+18. COMMAND SUMMARY CHEAT SHEET
+===============================================================================
+
+Command                           Purpose
+--------------------------------  ---------------------------------------------
+npm install                       Install all monorepo dependencies
+npm run build:packages            Build @promptarchitect/contracts & compiler
+npm test                          Run full Vitest test suite (19 suites, 120 tests)
+npm run verify:gates              Run 6-gate enterprise production audit
+npm run migrate:legacy            Migrate legacy db.json data into Supabase
+npm run verify:legacy             Verify integrity of migrated legacy data
+npm run dev:fastify               Start Fastify server with auto-reload (port 3000)
+npm run start:fastify             Start Fastify server in standard mode
+npm run worker                    Start background async compilation worker
+npm run dev                       Start Vite React 19 frontend (port 5173)
+
+===============================================================================
+END OF BACKEND SETUP GUIDE
+===============================================================================

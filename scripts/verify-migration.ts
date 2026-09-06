@@ -71,3 +71,26 @@ export async function verifyLegacyMigration(
     errors
   };
 }
+
+if (process.argv[1]?.includes('verify-migration')) {
+  import('dotenv/config').then(async () => {
+    const { supabaseAdmin } = await import('../src/infrastructure/database/supabaseClient.js');
+    console.log('\n--- Verifying Legacy Migration in Supabase ---');
+    verifyLegacyMigration(supabaseAdmin)
+      .then((res) => {
+        console.log('--- Migration Verification Results ---');
+        console.log(JSON.stringify(res, null, 2));
+        if (!res.valid) {
+          console.error('Validation errors encountered!');
+          process.exit(1);
+        }
+        console.log('Migration verified 100% valid!');
+        process.exit(0);
+      })
+      .catch((err) => {
+        console.error('Verification failed:', err);
+        process.exit(1);
+      });
+  });
+}
+
