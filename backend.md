@@ -13,6 +13,11 @@
 3. [Recommended Tech Stack & Why It Is Chosen](#3-recommended-tech-stack--why-it-is-chosen)
 4. [How the Backend Works in Simple Words (Step-by-Step)](#4-how-the-backend-works-in-simple-words-step-by-step)
 5. [The Curated Third-Party API Matrix (From the Master PRD)](#5-the-curated-third-party-api-matrix-from-the-master-prd)
+   - [5.1 Tier 1: Core Engine APIs](#tier-1-core-engine-must-have-for-production)
+   - [5.2 Tier 2: Scale & Export APIs](#tier-2-scale--export-growth--team-collaboration)
+   - [5.3 Tier 3: Utilities](#tier-3-utilities)
+   - [5.4 Curated Public APIs from public-apis/public-apis](#54-curated-public-apis-from-public-apispublic-apis-suitable-for-our-website)
+   - [5.5 Explicitly Prohibited APIs & The Selection Filter](#55-explicitly-prohibited-apis--the-selection-filter-rule)
 6. [How the Backend Connects to the Frontend](#6-how-the-backend-connects-to-the-frontend)
 7. [Recommended Backend Folder Structure](#7-recommended-backend-folder-structure)
 8. [Next Steps & Phased Implementation Plan](#8-next-steps--phased-implementation-plan)
@@ -289,15 +294,97 @@ Section 8 of our Master PRD specifies a curated matrix of enterprise APIs. Below
 
 ---
 
-### Explicitly Prohibited APIs (What We NEVER Use)
-According to Section 8 of the Master PRD, **Consumer Commodity APIs** are strictly prohibited:
-* ❌ Crypto price tickers (CoinGecko)
-* ❌ Weather APIs (OpenWeather)
-* ❌ Sports scores / News tickers
-* ❌ Recipe / Food databases / Anime APIs
+### 5.4 Curated Public APIs from `public-apis/public-apis` Suitable for Our Website
 
-**Why Are They Banned?**  
-PromptArchitect AI is a high-performance **developer-centric architecture tool**. Including consumer APIs introduces dependency vulnerabilities, inflates bundle size, and distracts from our core mission of generating high-grade prompt specifications.
+The popular open-source repository [public-apis/public-apis](https://github.com/public-apis/public-apis) lists hundreds of free public APIs across dozens of categories. However, because **PromptArchitect AI** is an enterprise developer tool, we strictly curate only those public APIs that **enhance prompt accuracy, provide code intelligence, or strengthen security**.
+
+Below are the **top 8 public APIs** from that repository that genuinely elevate our backend:
+
+| API Service | Category in `public-apis` | Auth Required | What It Does in Our Website | Why We Should Use It |
+| :--- | :--- | :---: | :--- | :--- |
+| **OSV.dev API** | Security / Development | None (Free) | Vulnerability & CVE Scanner for packages | In Stage 5 (Critic pass), checks if user-requested dependencies have known vulnerabilities and injects safe version bounds. |
+| **Libraries.io API** | Package Management | API Key (Free) | Dependency tree & deprecation inspector | Verifies if requested libraries are active or deprecated; warns user if a package is unmaintained. |
+| **LanguageTool API** | Text Analysis / NLP | None (Free Tier) | Natural language grammar & clarity linter | Cleans up typos, grammatical ambiguity, and broken sentences in raw prompts before LLM compilation. |
+| **Iconify API** | Design / Icons | None (Free) | 150,000+ vector tech stack & brand icons | Fetches official SVG icons (React, Docker, Postgres, Redis) to render interactive architecture preview cards. |
+| **DummyJSON / JSONPlaceholder** | Development / Test Data | None (Free) | Realistic JSON schema & mock data fixtures | Injects realistic seed data objects into Prompt A database contracts so agents don't use generic dummy text. |
+| **URLScan.io API** | Security / Web Scanning | API Key (Free Tier)| Sandboxed URL screenshot & DOM inspection | Safely inspects live websites submitted by users without running untrusted scripts on our server. |
+| **GitLab API** | Development / Version Control | OAuth / Token | Alternative repository code inspector | Extends the Repo-to-Prompt pipeline to teams hosting repositories on GitLab instead of GitHub. |
+| **QuickChart API** | Visuals / Charting | None (Free) | Serverless graph & Mermaid diagram renderer | Renders system architecture flowcharts and ERDs into high-resolution images for downloadable PDF books. |
+
+---
+
+#### Deep Dive into the Top Public APIs:
+
+#### 1. OSV.dev API (Open Source Vulnerability Database by Google)
+* **API Documentation:** `https://api.osv.dev/v1/query`
+* **Where It Plugs In:** **Stage 5 (Prompt Critic Engine)**.
+* **Why We Should Use It:**
+  * When a user prompt specifies dependencies (e.g. `jsonwebtoken@8.5.1`, `express@4.16`, `fastxmlparser`), the backend can make a lightweight POST request to OSV.dev.
+  * If a high-severity CVE is detected, the Critic pass catches it immediately and instructs the Optimizer to inject a constraint:
+    > *`"Constraint: Enforce jsonwebtoken >= 9.0.0 to remediate CVE-2022-23529 (Insecure verification vulnerability)."`*
+  * **Value Proposition:** This prevents AI coding agents from building applications with known security vulnerabilities.
+
+#### 2. Libraries.io API (Open Source Package Metadata)
+* **API Documentation:** `https://libraries.io/api`
+* **Where It Plugs In:** **Stage 2 & Stage 5 (Requirement Extraction & Constraint Verification)**.
+* **Why We Should Use It:**
+  * AI models often recommend deprecated packages (e.g., `request` instead of `fetch`/`axios`, or `moment.js` instead of `date-fns`).
+  * The backend queries Libraries.io to verify: (1) Is the package still maintained? (2) What is the latest stable release? (3) Is the license permissive (MIT/Apache) or restrictive (GPL)?
+  * **Value Proposition:** Keeps our generated prompts strictly on the latest industry standards.
+
+#### 3. LanguageTool API (Grammar & Style Linter)
+* **API Documentation:** `https://api.languagetool.org/v2/check`
+* **Where It Plugs In:** **Stage 1 (Intent & Category Classifier)**.
+* **Why We Should Use It:**
+  * Many users type unedited, grammatically chaotic prompts with spelling errors (e.g. *"creat a websit for donatin cloths with strpe"*).
+  * Passing raw typos directly to large models burns extra tokens and increases interpretation latency.
+  * LanguageTool cleans and normalizes user sentences into clean English before sending them to Gemini.
+  * **Value Proposition:** Improves Goal Clarity score and lowers LLM token consumption.
+
+#### 4. Iconify API (Vector Icons for Architecture Cards)
+* **API Documentation:** `https://api.iconify.design`
+* **Where It Plugs In:** **Stage 7 (Target Router) & Frontend Live Preview**.
+* **Why We Should Use It:**
+  * Contains over 150,000 vector icons, including official logos for React, Vue, Next.js, FastAPI, PostgreSQL, Redis, AWS, Docker, and Supabase.
+  * When PromptArchitect generates a tech stack recommendation, the backend can return exact SVG icon URLs.
+  * The frontend displays these icons on the Prompt DNA score card and inspiration chips.
+  * **Value Proposition:** Makes the compiled specification visually stunning without bundling hundreds of megabytes of icon packages.
+
+#### 5. DummyJSON / JSONPlaceholder (Mock Seed Data Generator)
+* **API Documentation:** `https://dummyjson.com`
+* **Where It Plugs In:** **Prompt A: Architectural Specification Deliverables**.
+* **Why We Should Use It:**
+  * A major failure mode of coding agents is creating empty database tables without sample seed data.
+  * The backend can fetch realistic mock datasets (users, addresses, products, order items) and embed them into Prompt A under `<database_seed_fixtures>`.
+  * **Value Proposition:** Coding agents build functional, realistic seed scripts immediately, allowing the user to test the app right away.
+
+#### 6. URLScan.io API (Sandboxed Website Inspector)
+* **API Documentation:** `https://urlscan.io/docs/api/`
+* **Where It Plugs In:** **Mode 2: Screenshot & URL Ingestion Pipeline**.
+* **Why We Should Use It:**
+  * If a user inputs: *"Make a modern dashboard inspired by https://example.com"*, fetching that site directly on our server could expose our server to SSRF (Server-Side Request Forgery) or malicious scripts.
+  * URLScan.io runs the URL inside a remote sandbox, extracts screenshot images, detected technologies, and DNS records safely.
+  * **Value Proposition:** 100% safe website ingestion that complies with our Non-Executable Principle.
+
+---
+
+### 5.5 Explicitly Prohibited APIs & The Selection Filter Rule
+
+#### Prohibited Categories from `public-apis`
+While `public-apis/public-apis` has 50+ categories, the following categories are **strictly prohibited** from our architecture:
+* ❌ **Cryptocurrency & Blockchain** (CoinGecko, Binance, CryptoCompare)
+* ❌ **Weather & Environment** (OpenWeatherMap, Weatherbit)
+* ❌ **Sports & Scores** (TheSportsDB, Football-Data)
+* ❌ **Food, Drink & Cooking** (TheMealDB, CocktailDB)
+* ❌ **Entertainment & Anime** (Cat Facts, PokeAPI, Kitsu, Chuck Norris)
+* ❌ **Games & Comics** (Deck of Cards, Marvel API)
+
+#### The 4-Point Public-API Evaluation Filter
+Before integrating any API from `public-apis/public-apis`, it must satisfy all 4 criteria:
+1. **Developer-Centric:** Does it relate directly to software engineering, architecture, dependencies, or documentation?
+2. **Quality-Enhancing:** Does it improve the 100-point Prompt Quality Score (security, clarity, constraints)?
+3. **Safe & Non-Executable:** Does it deliver static data/JSON without executing untrusted shell code?
+4. **High Availability:** Does it have high uptime and generous free tier limits that do not bottleneck our `< 2.5s` SLA?
 
 ---
 
