@@ -1,15 +1,17 @@
 /**
  * Stage 5: Prompt Critic Engine (Adversarial Red-Team Pass)
- * Audits Candidate Prompt v1 for security loopholes, missing migrations, loose types, and missing rollback checkpoints.
+ * Audits Candidate Prompt v1 for security loopholes, missing migrations, loose types, and OSV CVE vulnerabilities.
  */
+import { scanPromptForVulnerabilities } from '../services/osv.js';
+import { scanForDeprecations } from '../services/libraries.js';
 
 /**
  * Red-teams a candidate prompt and canonical spec.
  * @param {string} candidatePrompt
  * @param {object} spec
- * @returns {{ defects: Array<string>, scorePenalty: number, passesCritique: boolean }}
+ * @returns {Promise<{ defects: Array<string>, scorePenalty: number, passesCritique: boolean, cveReports: Array<object> }>}
  */
-export function critiquePrompt(candidatePrompt = '', spec = {}) {
+export async function critiquePrompt(candidatePrompt = '', spec = {}) {
   const defects = [];
   const text = candidatePrompt.toLowerCase();
 
@@ -39,13 +41,32 @@ export function critiquePrompt(candidatePrompt = '', spec = {}) {
     defects.push('Does not explicitly forbid loose "any" types or enforce runtime Zod validation boundaries.');
   }
 
+  // Audit 6: OSV.dev CVE Vulnerability Scanner Integration
+  let cveReports = [];
+  try {
+    cveReports = await scanPromptForVulnerabilities(candidatePrompt);
+    for (const report of cveReports) {
+      const cveIds = report.cves.map(c => c.id).slice(0, 3).join(', ');
+      defects.push(`Security Vulnerability Alert: Package "${report.package}@${report.version}" has known CVEs (${cveIds || 'GHSA advisory'}). Upgrade to safe version.`);
+    }
+  } catch {
+    // Non-blocking OSV pass
+  }
+
+  // Audit 7: Deprecated packages (Libraries.io)
+  const deprecations = scanForDeprecations(candidatePrompt);
+  for (const dep of deprecations) {
+    defects.push(`Deprecated Package Alert: "${dep.package}" is deprecated. Replace with "${dep.replacement}".`);
+  }
+
   const scorePenalty = defects.length * 4;
   const passesCritique = defects.length === 0;
 
   return {
     defects,
     scorePenalty,
-    passesCritique
+    passesCritique,
+    cveReports
   };
 }
 

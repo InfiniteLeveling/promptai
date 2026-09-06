@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@google/genai": "^2.21.0",
+    "@octokit/rest": "^22.0.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "cors": "^2.8.5",

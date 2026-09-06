@@ -54,7 +54,7 @@ export async function compilePipeline(rawInput, selectedChips = [], targetAgent 
   const candidatePrompt = generateCandidatePrompt(baseSpec, targetAgent);
 
   // Stage 5: Adversarial Red-Team Critique Engine
-  const critiqueResult = critiquePrompt(candidatePrompt, baseSpec);
+  const critiqueResult = await critiquePrompt(candidatePrompt, baseSpec);
 
   // Stage 6: Closed-Loop Heuristic Optimizer
   const { optimizedSpec, additions } = optimizeRequirements(baseSpec, critiqueResult.defects);

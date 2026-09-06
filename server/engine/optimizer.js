@@ -48,7 +48,21 @@ export function optimizeRequirements(spec, defects = [], isFullEnterpriseHardeni
     additions.push('✨ Enforced strict TypeScript mode and Zod schema boundary validation');
   }
 
-  // 5. Level 2 Enterprise Observability & SOC2 (if requested or on second pass)
+  // 5. Patch OSV.dev CVE vulnerabilities
+  const cveDefect = defects.find(d => d.includes('Security Vulnerability Alert'));
+  if (cveDefect) {
+    cloned.constraints.push('Dependency Security Mandate: Pin safe package versions; upgrade vulnerable dependencies (e.g. jsonwebtoken >= 9.0.0) to eliminate CVEs.');
+    additions.push('🛡️ OSV.dev Vulnerability Patch: Mandated secure non-vulnerable dependency bounds');
+  }
+
+  // 6. Patch Deprecated libraries
+  const depDefect = defects.find(d => d.includes('Deprecated Package Alert'));
+  if (depDefect) {
+    cloned.constraints.push('Negative Constraint: Forbid deprecated libraries (request, moment, tslint); mandate modern replacements.');
+    additions.push('📦 Libraries.io Deprecation Patch: Replaced legacy packages with modern alternatives');
+  }
+
+  // 7. Level 2 Enterprise Observability & SOC2 (if requested or on second pass)
   if (isFullEnterpriseHardening) {
     const obs1 = 'OpenTelemetry (OTel) distributed tracing with W3C tracecontext propagation on all service boundaries.';
     const obs2 = 'Immutable SOC2 audit trail logging with correlation IDs (trace_id, span_id, tenant_id) outputted in structured JSON.';
