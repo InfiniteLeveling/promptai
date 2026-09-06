@@ -12,6 +12,11 @@ import { randomUUID } from 'crypto';
 import { logger } from './infrastructure/observability/logger.js';
 import { HealthResponseSchema } from './schemas/api.js';
 import { authPlugin } from './modules/auth/authPlugin.js';
+import { compilationRoutes } from './modules/compilation/compilationRoutes.js';
+import { blueprintRoutes } from './modules/blueprints/blueprintRoutes.js';
+import { billingRoutes } from './modules/billing/billingRoutes.js';
+import { storageRoutes } from './modules/storage/storageRoutes.js';
+import { legacyRoutes } from './compatibility/legacyRoutes.js';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({
@@ -149,6 +154,13 @@ export async function buildApp(opts: FastifyServerOptions = {}): Promise<Fastify
       };
     }
   );
+
+  // 11. Domain Feature Routes
+  await app.register(compilationRoutes);
+  await app.register(blueprintRoutes);
+  await app.register(billingRoutes);
+  await app.register(storageRoutes);
+  await app.register(legacyRoutes);
 
   return app;
 }

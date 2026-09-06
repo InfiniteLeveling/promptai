@@ -1,0 +1,12 @@
+{
+  "migrationRunId": "e4712f21-a73d-412c-9635-55d775b547fa",
+  "workerId": "worker-run-2",
+  "sourceSha256": "10f20f0f24afc00cec14168b40d7d61ffa5e5303ef2958a1531d69da45ac1693",
+  "usersMigrated": 1,
+  "promptsMigrated": 1,
+  "templatesMigrated": 5,
+  "usageCountersMigrated": 1,
+  "checksumVerification": "PASSED",
+  "startedAt": "2026-09-06T17:50:58.791Z",
+  "completedAt": "2026-09-06T17:50:58.793Z"
+}
