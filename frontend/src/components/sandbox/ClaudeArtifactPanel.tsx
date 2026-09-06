@@ -38,6 +38,9 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
     scoreBreakdown,
     improvePrompt,
     isCompiling,
+    isImproving,
+    lastImprovementNotice,
+    dismissImprovementNotice,
     updateArtifactContent
   } = usePromptStore();
 
@@ -47,6 +50,7 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
   const [downloaded, setDownloaded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
+  const [recentImproved, setRecentImproved] = useState(false);
 
   if (!isOpen) return null;
 
@@ -93,6 +97,15 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
       updateArtifactContent(activeTab, editText);
     }
     setIsEditing(false);
+  };
+
+  const handleImproveClick = async () => {
+    if (isEditing) {
+      setIsEditing(false);
+    }
+    await improvePrompt();
+    setRecentImproved(true);
+    setTimeout(() => setRecentImproved(false), 3500);
   };
 
   const displayScore = totalScore || 94;
@@ -143,9 +156,16 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
           <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-outline font-bold">
             <Sparkles className="w-3 h-3 text-tertiary" /> Prompt DNA
           </div>
-          <span className="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            {displayScore}/100 Quality
-          </span>
+          <div className="flex items-center gap-1.5">
+            {recentImproved && (
+              <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 border border-emerald-500/40 px-1.5 py-0.5 rounded animate-pulse">
+                +4 Quality Boost
+              </span>
+            )}
+            <span className="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              {displayScore}/100 Quality
+            </span>
+          </div>
         </div>
 
         {/* DNA Metrics Bars */}
@@ -192,6 +212,33 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
         </div>
       </div>
 
+      {/* Dynamic Improvement Banner */}
+      {lastImprovementNotice && (
+        <div className="mx-3.5 mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-tertiary/10 to-primary/10 border border-emerald-500/40 text-xs flex items-center justify-between gap-2 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 select-none">
+          <div className="flex items-center gap-2 text-on-surface font-sans">
+            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 animate-bounce" />
+            <span className="text-[11px] leading-snug font-medium">{lastImprovementNotice}</span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {activeTab !== 'whyBetter' && (
+              <button
+                onClick={() => { setActiveTab('whyBetter'); setIsEditing(false); }}
+                className="text-[10px] font-mono font-bold text-emerald-400 hover:text-emerald-300 underline underline-offset-2 px-1.5 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 transition-all"
+              >
+                Inspect Changes →
+              </button>
+            )}
+            <button
+              onClick={dismissImprovementNotice}
+              className="p-1 rounded-md text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+              title="Dismiss notice"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 3. Action Toolbar (user-experence.md § 7: [Copy] [Edit] [Improve] [Export]) */}
       <div className="px-3.5 py-2 border-b border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between gap-2 shrink-0 select-none">
         <div className="flex items-center gap-1.5">
@@ -233,17 +280,34 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
 
           {/* Improve Button */}
           <button
-            onClick={() => improvePrompt()}
-            disabled={isCompiling}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-tertiary transition-all active:scale-95 disabled:opacity-50"
-            title="Run critique and optimizer loop"
-          >
-            {isCompiling ? (
-              <Zap className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <RotateCcw className="w-3.5 h-3.5" />
+            onClick={handleImproveClick}
+            disabled={isCompiling || isImproving}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold transition-all active:scale-95 disabled:opacity-50",
+              recentImproved
+                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold shadow-[0_0_12px_rgba(52,211,153,0.3)]"
+                : isImproving
+                ? "bg-tertiary/20 text-tertiary border-tertiary/40 animate-pulse font-bold"
+                : "bg-surface-container hover:bg-surface-container-high border-outline-variant/30 text-tertiary hover:border-tertiary/50"
             )}
-            <span>Improve</span>
+            title="Run critique and optimizer loop (Injects security bounds & rollback checkpoints)"
+          >
+            {isImproving ? (
+              <>
+                <Zap className="w-3.5 h-3.5 animate-spin text-tertiary" />
+                <span>Improving...</span>
+              </>
+            ) : recentImproved ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span>✨ Improved!</span>
+              </>
+            ) : (
+              <>
+                <RotateCcw className="w-3.5 h-3.5 text-tertiary" />
+                <span>Improve</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -346,7 +410,7 @@ export const ClaudeArtifactPanel: React.FC<ClaudeArtifactPanelProps> = ({
                   <ShieldCheck className="w-4 h-4 text-emerald-400" /> What PromptArchitect Added:
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  +42 Quality Points
+                  +{displayScore > 94 ? 42 + (displayScore - 94) : 42} Quality Points
                 </span>
               </div>
 

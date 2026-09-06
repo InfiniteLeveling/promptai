@@ -10,7 +10,7 @@ interface MessageStreamProps {
 }
 
 export const MessageStream: React.FC<MessageStreamProps> = ({ onOpenArtifacts }) => {
-  const { rawPrompt, targetFormat, compilingStage } = usePromptStore();
+  const { rawPrompt, targetFormat, compilingStage, totalScore } = usePromptStore();
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
@@ -44,7 +44,7 @@ export const MessageStream: React.FC<MessageStreamProps> = ({ onOpenArtifacts })
           {/* Open Artifacts Button */}
           <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20 text-xs">
             <span className="text-outline font-mono text-[11px]">
-              {compilingStage === 7 ? '✓ Specification verified (Score: 94)' : 'Compiling stages...'}
+              {compilingStage === 7 ? `✓ Specification verified (Score: ${totalScore || 94})` : 'Compiling stages...'}
             </span>
             <Button
               onClick={onOpenArtifacts}
