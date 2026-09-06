@@ -16,7 +16,7 @@ import { PricingPage } from './pages/PricingPage';
 import { SandboxPage } from './pages/SandboxPage';
 import { DocsPage } from './pages/DocsPage';
 
-const AnimatedRoutes: React.FC = () => {
+const AnimatedMarketingRoutes: React.FC = () => {
   const location = useLocation();
 
   return (
@@ -36,7 +36,6 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="/two-prompt" element={<TwoPromptPage />} />
           <Route path="/targets" element={<TargetsPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/sandbox" element={<SandboxPage />} />
           <Route path="/docs" element={<DocsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -45,20 +44,36 @@ const AnimatedRoutes: React.FC = () => {
   );
 };
 
+const AppLayout: React.FC = () => {
+  const location = useLocation();
+  const isSandbox = location.pathname === '/sandbox';
+
+  if (isSandbox) {
+    return <SandboxPage />;
+  }
+
+  return (
+    <div className="bg-surface-container-lowest text-on-surface min-h-screen relative overflow-x-hidden antialiased flex flex-col justify-between">
+      <AmbientCanvas />
+      <div className="relative z-30">
+        <Header />
+        <SubNav />
+      </div>
+      <main className="flex-1 relative z-10">
+        <AnimatedMarketingRoutes />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <div className="bg-surface-container-lowest text-on-surface min-h-screen relative overflow-x-hidden antialiased flex flex-col justify-between">
-        <AmbientCanvas />
-        <div className="relative z-30">
-          <Header />
-          <SubNav />
-        </div>
-        <main className="flex-1 relative z-10">
-          <AnimatedRoutes />
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        <Route path="/sandbox" element={<SandboxPage />} />
+        <Route path="/*" element={<AppLayout />} />
+      </Routes>
     </BrowserRouter>
   );
 };
