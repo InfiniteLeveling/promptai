@@ -65,6 +65,7 @@
 | **2026-09-06** | Backend Phase 1: Gateway & Infrastructure | Built and verified the production Express foundation in `server/` on Port 3000: ESM setup, Helmet, CORS, 60 req/min rate limiter, standardized error handler, and `GET /api/health` returning 200 OK. | ✅ Complete |
 | **2026-09-06** | Live Sandbox Improve Button Fix | Resolved issue where clicking `[Improve]` produced no changes: (1) Added `isImproving`, `improvementLevel`, and `lastImprovementNotice` to [usePromptStore.ts](file:///d:/prompt%20maker/frontend/src/store/usePromptStore.ts), (2) Injected multi-tier hardening passes (Level 1: HMAC replay defense, distributed idempotency keys, terminal rollback gates; Level 2: OpenTelemetry tracing spans, Prometheus RED metrics, and SOC2 audit compliance), (3) Boosted Prompt DNA quality score to 98/100 (Level 1) and 100/100 (Level 2), (4) Added dynamic notification banner with "Inspect Changes →" quick link, and (5) Added button states ("Improving...", "✨ Improved!"). | ✅ Complete |
 | **2026-09-06** | Backend Phase 2: Core AI Engine, Gemini 1.5 & Sanitization | Connected backend to `@google/genai`, built XML sanitization & prompt injection defense in [sanitize.js](file:///d:/prompt%20maker/server/middleware/sanitize.js), created [canonicalRequirementSpec.json](file:///d:/prompt%20maker/server/schemas/canonicalRequirementSpec.json) draft-07 schema with [schemaValidator.js](file:///d:/prompt%20maker/server/services/schemaValidator.js), built [gemini.js](file:///d:/prompt%20maker/server/services/gemini.js) with resilient fallback, and exposed `POST /api/prompts/analyze`. All tests verified (normal analysis, injection blocking, length bounds). | ✅ Complete |
+| **2026-09-06** | Backend Phase 3: The 7-Stage Compiler & Dialect Adapters | Constructed the complete 7-stage prompt compiler in [server/engine/](file:///d:/prompt%20maker/server/engine/): [scorer.js](file:///d:/prompt%20maker/server/engine/scorer.js) (7 dimensions), [classifier.js](file:///d:/prompt%20maker/server/engine/classifier.js) (Stage 1), [extractor.js](file:///d:/prompt%20maker/server/engine/extractor.js) (Stage 2), [clarifier.js](file:///d:/prompt%20maker/server/engine/clarifier.js) (Stage 3), [generator.js](file:///d:/prompt%20maker/server/engine/generator.js) (Stage 4), [critic.js](file:///d:/prompt%20maker/server/engine/critic.js) (Stage 5), [optimizer.js](file:///d:/prompt%20maker/server/engine/optimizer.js) (Stage 6), and target dialect adapters ([antigravity.js](file:///d:/prompt%20maker/server/engine/adapters/antigravity.js), [cursor.js](file:///d:/prompt%20maker/server/engine/adapters/cursor.js), [claude.js](file:///d:/prompt%20maker/server/engine/adapters/claude.js), [v0.js](file:///d:/prompt%20maker/server/engine/adapters/v0.js)). Exposed `POST /api/prompts/generate` and `POST /api/prompts/improve`. All tests verified. | ✅ Complete |
 
 ### Issues Encountered & Resolved
 * **Issue:** Playwright driver download error (`404 Not Found` fetching `playwright-1.57.0-win32_x64.zip` from Azure CDN) during automated browser subagent initialization.
@@ -79,12 +80,12 @@
 ## 3. CURRENTLY WORKING
 
 ### 3.1 Active Milestone & Focus
-* **Current Phase:** Phase 2 Complete (Core AI Engine, Gemini 1.5 Integration & Input Sanitization). Ready for Phase 3 (7-Stage Deterministic Prompt Compiler & Heuristic Scorer).
-* **Active Status:** Endpoints live and verified on `http://localhost:3000/api/prompts/analyze` and `http://localhost:3000/api/health`.
+* **Current Phase:** Phase 3 Complete (7-Stage Deterministic Compiler & Heuristic Scorer). Ready for Phase 4 (Curated Third-Party APIs Integration).
+* **Active Status:** Live endpoints on Port 3000: `POST /api/prompts/analyze`, `POST /api/prompts/generate`, `POST /api/prompts/improve`, and `GET /api/health`.
 
 ### 3.2 What's Next
-1. User tests and verifies Phase 2 endpoints.
-2. User provides approval ("proced") to enter **Phase 3: The 7-Stage Deterministic Prompt Compiler & Heuristic Scorer** (building `server/engine/`: scorer, classifier, extractor, clarifier, generator, critic, optimizer, and adapters for Antigravity, Cursor, Claude, v0).
+1. User reviews Phase 3 test results.
+2. User provides approval ("proced") to enter **Phase 4: Curated Third-Party APIs Integration** (GitHub REST API, OSV.dev CVE scanner, Libraries.io, LanguageTool linter, Iconify SVG lookup, MockData fixtures injector, and `/api/ingest` routes).
 
 
 
