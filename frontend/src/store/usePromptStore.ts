@@ -380,12 +380,13 @@ export const usePromptStore = create<PromptState>((set, get) => ({
           },
           compiledOutput: {
             ...compiledOutput,
-            promptA: d.hardened_prompt_a || compiledOutput.promptA,
-            promptB: d.hardened_prompt_b || compiledOutput.promptB,
-            nativeCode: d.hardened_native || compiledOutput.nativeCode,
+            promptA: d.prompt_a || d.hardened_prompt_a || compiledOutput.promptA,
+            promptB: d.prompt_b || d.hardened_prompt_b || compiledOutput.promptB,
+            nativeCode: d.native_code || d.hardened_native || compiledOutput.nativeCode,
+            schemaJson: d.schema_json || compiledOutput.schemaJson,
             whyBetterNotes: {
               original: compiledOutput.whyBetterNotes?.original || get().rawPrompt,
-              additions: d.applied_optimizations || compiledOutput.whyBetterNotes?.additions || []
+              additions: d.additions || d.applied_optimizations || compiledOutput.whyBetterNotes?.additions || []
             }
           },
           lastImprovementNotice: d.notice || (isSecondPass ? "🌟 Enterprise Observability Applied (+100/100 Quality)" : "✨ Adversarial Security Hardened (+98/100 Quality)")
