@@ -1,6 +1,25 @@
 {
   "users": [],
-  "prompts": [],
+  "prompts": [
+    {
+      "id": "prompt_f438741a-18c2-4199-b716-963b2924cc73",
+      "user_id": "usr_dev_1001",
+      "title": "My Production Microservice",
+      "category": "coding",
+      "target_agent": "antigravity",
+      "diagnostic_score": 96,
+      "spec_id": "2441aab5-27cc-433e-932b-6e1dada0be39",
+      "requirement_spec": null,
+      "prompt_a": "# PRD Specification...",
+      "prompt_b": "# Implementation Steps...",
+      "native_code": "",
+      "tags": [
+        "coding"
+      ],
+      "created_at": "2026-09-06T14:54:18.052Z",
+      "updated_at": "2026-09-06T14:54:18.052Z"
+    }
+  ],
   "templates": [
     {
       "id": "tpl_payment_reconciler",
@@ -160,6 +179,6 @@
     }
   ],
   "usage": {
-    "usr_dev_1001_2026-09-06": 1
+    "usr_dev_1001_2026-09-06": 2
   }
 }

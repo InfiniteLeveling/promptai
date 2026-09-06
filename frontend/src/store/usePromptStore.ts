@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ScoreBreakdown, TargetFormat, CompiledOutput } from '../types/prompt';
 import { ARCHETYPES, AVAILABLE_CHIPS } from '../lib/constants';
+import { apiService } from '../services/api';
 
 interface PromptState {
   rawPrompt: string;
@@ -13,6 +14,7 @@ interface PromptState {
   scoreBreakdown: ScoreBreakdown;
   totalScore: number;
   compiledOutput: CompiledOutput;
+  currentRequirementSpec: any;
   isEditingArtifact: boolean;
   isImproving: boolean;
   improvementLevel: number;
@@ -21,6 +23,7 @@ interface PromptState {
   // Actions
   setRawPrompt: (text: string) => void;
   loadArchetype: (archetypeId: string) => void;
+  loadEnterpriseTemplate: (templateId: string) => Promise<void>;
   toggleChip: (chipId: string) => void;
   setTargetFormat: (format: TargetFormat) => void;
   clearPrompt: () => void;
@@ -200,6 +203,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   scoreBreakdown: EMPTY_SCORE,
   totalScore: 0,
   compiledOutput: generateOutputs('', [], 'twoprompt'),
+  currentRequirementSpec: null,
   isEditingArtifact: false,
   isImproving: false,
   improvementLevel: 0,
@@ -306,35 +310,29 @@ export const usePromptStore = create<PromptState>((set, get) => ({
 
     // 1. Attempt live backend compiler endpoint
     try {
-      const res = await fetch('/api/prompts/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          raw_input: rawPrompt.trim() || 'Multi-tenant event processing engine',
-          selected_chips: selectedChipIds,
-          target_agent: targetFormat
-        })
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data) {
-          const d = json.data;
-          set({
-            isCompiling: false,
-            compilingStage: 7,
-            totalScore: d.diagnostic_score || 94,
-            scoreBreakdown: d.score_breakdown || get().scoreBreakdown,
-            compiledOutput: {
-              promptA: d.prompt_a,
-              promptB: d.prompt_b,
-              nativeCode: d.native_code,
-              schemaJson: d.schema_json,
-              diffSummary: d.diff_summary || [],
-              whyBetterNotes: d.why_better_notes || { original: rawPrompt, additions: [] }
-            }
-          });
-          return;
-        }
+      const json = await apiService.compilePrompt(
+        rawPrompt.trim() || 'Multi-tenant event processing engine',
+        selectedChipIds,
+        targetFormat
+      );
+      if (json && json.success && json.data) {
+        const d = json.data;
+        set({
+          isCompiling: false,
+          compilingStage: 7,
+          totalScore: d.diagnostic_score || 94,
+          scoreBreakdown: d.score_breakdown || get().scoreBreakdown,
+          currentRequirementSpec: d.requirement_spec,
+          compiledOutput: {
+            promptA: d.prompt_a,
+            promptB: d.prompt_b,
+            nativeCode: d.native_code,
+            schemaJson: d.schema_json,
+            diffSummary: d.diff_summary || [],
+            whyBetterNotes: d.why_better_notes || { original: rawPrompt, additions: [] }
+          }
+        });
+        return;
       }
     } catch {
       // Seamless fallback to client-side compiler
@@ -351,10 +349,52 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   dismissImprovementNotice: () => set({ lastImprovementNotice: null }),
 
   improvePrompt: async () => {
-    const { compiledOutput, improvementLevel, isImproving } = get();
+    const { compiledOutput, improvementLevel, isImproving, currentRequirementSpec } = get();
     if (isImproving) return;
 
     set({ isImproving: true });
+
+    // 1. Attempt live backend on-demand improve pass
+    try {
+      const isSecondPass = improvementLevel > 0;
+      const res = await apiService.improvePrompt(
+        compiledOutput.promptA || get().rawPrompt,
+        get().targetFormat,
+        isSecondPass,
+        currentRequirementSpec
+      );
+      if (res && res.success && res.data) {
+        const d = res.data;
+        set({
+          isImproving: false,
+          improvementLevel: isSecondPass ? 2 : 1,
+          totalScore: d.quality_score || (isSecondPass ? 100 : 98),
+          scoreBreakdown: {
+            clarity: 20,
+            completeness: 20,
+            constraints: 15,
+            gating: 15,
+            context: 10,
+            modelFit: isSecondPass ? 10 : 9,
+            edgeDefenses: isSecondPass ? 10 : 9
+          },
+          compiledOutput: {
+            ...compiledOutput,
+            promptA: d.hardened_prompt_a || compiledOutput.promptA,
+            promptB: d.hardened_prompt_b || compiledOutput.promptB,
+            nativeCode: d.hardened_native || compiledOutput.nativeCode,
+            whyBetterNotes: {
+              original: compiledOutput.whyBetterNotes?.original || get().rawPrompt,
+              additions: d.applied_optimizations || compiledOutput.whyBetterNotes?.additions || []
+            }
+          },
+          lastImprovementNotice: d.notice || (isSecondPass ? "🌟 Enterprise Observability Applied (+100/100 Quality)" : "✨ Adversarial Security Hardened (+98/100 Quality)")
+        });
+        return;
+      }
+    } catch {
+      // Graceful fallback to client-side synthesis
+    }
 
     // Realistic synthesis delay for Stage 5 Adversarial Critique & Stage 6 Optimization pass
     await new Promise(resolve => setTimeout(resolve, 650));
@@ -534,6 +574,33 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         isImproving: false,
         lastImprovementNotice: "✨ Prompt is at peak architectural fidelity (100/100 Quality DNA). All invariants and rollback gates are fully active."
       });
+    }
+  },
+
+  loadEnterpriseTemplate: async (templateId: string) => {
+    try {
+      const tpl = await apiService.fetchTemplateById(templateId);
+      if (tpl) {
+        set({
+          rawPrompt: tpl.canonical_spec?.objective || tpl.summary,
+          detectedCategory: tpl.category,
+          totalScore: tpl.diagnostic_score || 98,
+          currentRequirementSpec: tpl.canonical_spec,
+          compiledOutput: {
+            promptA: tpl.prompt_a || '',
+            promptB: tpl.prompt_b || '',
+            nativeCode: '',
+            schemaJson: JSON.stringify(tpl.canonical_spec || {}, null, 2),
+            diffSummary: ['Pre-compiled enterprise reference blueprint'],
+            whyBetterNotes: {
+              original: tpl.title,
+              additions: [tpl.summary, `Recommended for ${tpl.recommended_agent.toUpperCase()}`]
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Failed to load enterprise template:', err);
     }
   },
 
