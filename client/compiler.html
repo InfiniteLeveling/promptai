@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>7-Stage Compiler • PromptArchitect AI</title>
+  <meta name="description" content="Deep dive into PromptArchitect's 7-Stage Core Compiler Engine."/>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#10131a",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-low": "#191c22",
+            "surface-container": "#1d2026",
+            "surface-container-high": "#272a31",
+            "surface-container-highest": "#32353c",
+            "on-surface": "#e0e2eb",
+            "on-surface-variant": "#c7c4d7",
+            "outline": "#908fa0",
+            "outline-variant": "#464554",
+            "primary": "#c0c1ff",
+            "primary-container": "#8083ff",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#4cd7f6",
+            "tertiary-container": "#009eb9",
+            "error": "#ffb4ab"
+          },
+          fontFamily: {
+            "display-hero": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-sm": ["Outfit"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined { font-size: 1.15rem; vertical-align: middle; }
+    .spotlight-card { position: relative; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+    .spotlight-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
+      background: radial-gradient(350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(192, 193, 255, 0.35), transparent 70%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s ease; z-index: 2;
+    }
+    .spotlight-card:hover::before { opacity: 1; }
+    .spotlight-card:hover { box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.2); }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen relative overflow-x-hidden antialiased">
+  
+  <header class="sticky top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <a class="flex items-center gap-2" href="index.html">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-[0_0_20px_rgba(99,102,241,0.5)]">PA</div>
+        <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface" href="sandbox.html">Launch Sandbox ⚡</a>
+      </div>
+    </div>
+    <div class="border-t border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md">
+      <div class="max-w-6xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
+        <nav class="flex items-center gap-6">
+          <a class="text-on-surface-variant hover:text-on-surface" href="features.html">Features</a>
+          <a class="text-primary font-semibold" href="compiler.html">The 7-Stage Engine</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="two-prompt.html">Two-Prompt Bridge</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="targets.html">Targets</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="pricing.html">Pricing</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="sandbox.html">Live Sandbox</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="docs.html">Docs</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-6 pt-14 pb-24">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-label-caps text-tertiary bg-tertiary/10 px-3 py-1 rounded-full border border-tertiary/30">Compiler Pipeline</span>
+      <h1 class="font-display-hero text-4xl md:text-5xl font-bold mt-4 tracking-tight">
+        The 7-Stage <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Deterministic Core</span>
+      </h1>
+      <p class="text-on-surface-variant text-sm md:text-base mt-4 leading-relaxed">
+        How PromptArchitect AI turns loose conversational intent into airtight execution manifests with zero conversational fatigue and sub-second latency.
+      </p>
+    </div>
+
+    <!-- Stage Interactive Explorer -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Stage Nav List (5 cols) -->
+      <div class="lg:col-span-5 space-y-3" id="stage-nav-list">
+        <button onclick="selectStage(1)" id="btn-stage-1" class="w-full text-left p-4 rounded-xl border border-primary/50 bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-primary text-[10px]">STAGE 01 • SLA &lt; 600ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Intent & Category Classifier</div>
+          </div>
+          <span class="material-symbols-outlined text-primary text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(2)" id="btn-stage-2" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 02 • SLA &lt; 200ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Requirement Extraction Engine</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(3)" id="btn-stage-3" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 03 • SLA &lt; 400ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Smart Clarification Engine</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(4)" id="btn-stage-4" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 04 • SLA &lt; 800ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Master Generator Engine</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(5)" id="btn-stage-5" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 05 • SLA &lt; 700ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Prompt Critic Engine</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(6)" id="btn-stage-6" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 06 • SLA &lt; 800ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Prompt Optimizer Loop</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="selectStage(7)" id="btn-stage-7" class="w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between">
+          <div>
+            <div class="text-label-caps text-outline text-[10px]">STAGE 07 • SLA &lt; 200ms</div>
+            <div class="font-headline-sm text-sm font-bold text-on-surface mt-0.5">Model & Tool Router</div>
+          </div>
+          <span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+        </button>
+      </div>
+
+      <!-- Stage Detail Display (7 cols) -->
+      <div class="lg:col-span-7 bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8 spotlight-card" id="stage-detail-card">
+        <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4 mb-6">
+          <div>
+            <span class="text-label-caps text-tertiary" id="detail-stage-num">STAGE 01</span>
+            <h2 class="font-headline-lg text-xl font-bold text-on-surface" id="detail-stage-title">Intent & Category Classifier</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-code-sm bg-surface-container border border-outline-variant/30 text-emerald-400" id="detail-stage-engine">Gemini 1.5 Flash</span>
+        </div>
+
+        <div class="space-y-4 text-sm text-on-surface-variant leading-relaxed">
+          <div>
+            <strong class="text-on-surface block mb-1">Functional Responsibility:</strong>
+            <p id="detail-stage-desc">Parses raw multi-modal input and normalizes it into 1 of 11 operational domains (Website, Coding, Debugging, Image, Video, App, AI Agent, Research, Writing, Education, General) using Gemini Structured JSON Mode.</p>
+          </div>
+
+          <div>
+            <strong class="text-on-surface block mb-1">Engine Mechanism:</strong>
+            <p id="detail-stage-mech">Adversarial Classifier with strict JSON schema constraints. Eliminates conversational preamble and isolates domain rules.</p>
+          </div>
+
+          <div>
+            <strong class="text-on-surface block mb-1">Compiled Schema Output:</strong>
+            <pre class="bg-surface-container-lowest p-4 rounded-xl font-code-sm text-xs text-primary overflow-x-auto border border-outline-variant/20" id="detail-stage-code">{
+  "category": "website",
+  "domain_context": "Community Marketplace",
+  "confidence": 0.992,
+  "inferred_runtime": "JavaScript / Vanilla"
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
+    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Home</a>
+  </footer>
+
+  <script>
+    const STAGES = {
+      1: {
+        num: "STAGE 01", title: "Intent & Category Classifier", engine: "Gemini 1.5 Flash",
+        desc: "Parses raw input into 1 of 11 operational domains using Structured Output JSON mode.",
+        mech: "Deterministic schema classifier isolating domain semantics and boundaries.",
+        code: `{\n  "category": "website",\n  "domain_context": "Community Marketplace",\n  "confidence": 0.992,\n  "inferred_runtime": "JavaScript / Vanilla"\n}`
+      },
+      2: {
+        num: "STAGE 02", title: "Requirement Extraction Engine", engine: "Deterministic AST",
+        desc: "Extracts existing technical constraints, personas, and deliverables into the CanonicalRequirementSpec JSON schema.",
+        mech: "AST Normalizer mapping entities into draft-07 JSON Schema.",
+        code: `{\n  "spec_id": "9b1deb4d-3b7d-4bad",\n  "objective": { "primary_goal": "Clothing donation tracker" },\n  "technical_stack": { "frontend": "Vanilla JS", "database": "IndexedDB" }\n}`
+      },
+      3: {
+        num: "STAGE 03", title: "Smart Clarification Engine", engine: "Heuristic Gap Analyzer",
+        desc: "Identifies high-impact architectural gaps and emits 3-4 interactive choice chips with a non-blocking escape hatch.",
+        mech: "Detects missing auth, state, and boundary rules; generates 15-second decision chips.",
+        code: `{\n  "chips": [\n    { "id": "auth", "options": ["LocalStorage", "JWT", "Firebase"] },\n    { "id": "db", "options": ["Dexie.js", "SQLite Wasm"] }\n  ],\n  "can_bypass": true\n}`
+      },
+      4: {
+        num: "STAGE 04", title: "Master Generator Engine", engine: "Format Adapter",
+        desc: "Compiles Candidate Prompt v1 incorporating role, stack, architecture, schemas, and acceptance criteria.",
+        mech: "Draft synthesizer combining constraints into structured instruction prompts.",
+        code: `{\n  "candidate_v1_length": 1420,\n  "has_terminal_gates": true,\n  "initial_score": 54\n}`
+      },
+      5: {
+        num: "STAGE 05", title: "Prompt Critic Engine", engine: "Adversarial LLM Pass",
+        desc: "Analyzes candidate v1 for ambiguity, contradictory dependencies, and missing edge cases.",
+        mech: "Adversarial reasoning audit detecting failure scenarios and security omissions.",
+        code: `{\n  "deficiencies_found": 2,\n  "penalty_points": 18,\n  "issues": ["No geofencing boundary", "Undeclared database migration"]\n}`
+      },
+      6: {
+        num: "STAGE 06", title: "Prompt Optimizer Loop", engine: "Iterative Refiner",
+        desc: "Applies critic feedback in a closed loop to eliminate weaknesses, boosting quality score past 90/100.",
+        mech: "Closed loop refinement until rubric grade exceeds 90 points.",
+        code: `{\n  "iterations": 2,\n  "initial_score": 54,\n  "final_score": 96,\n  "gain": "+42 points"\n}`
+      },
+      7: {
+        num: "STAGE 07", title: "Model & Tool Router", engine: "Agent Output Compiler",
+        desc: "Formats Master Prompt for target AI (XML tags for Claude, Markdown for Cursor, prompt flags for Midjourney).",
+        mech: "Target AST emission matching exact agent syntactic conventions.",
+        code: `{\n  "target": "antigravity",\n  "deliverables": ["prompt_a_spec.md", "prompt_b_implementation.md"]\n}`
+      }
+    };
+
+    function selectStage(num) {
+      for (let i = 1; i <= 7; i++) {
+        const btn = document.getElementById('btn-stage-' + i);
+        if (i === num) {
+          btn.className = 'w-full text-left p-4 rounded-xl border border-primary/50 bg-surface-container-high transition-all flex items-center justify-between';
+        } else {
+          btn.className = 'w-full text-left p-4 rounded-xl border border-outline-variant/30 bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-between';
+        }
+      }
+      const data = STAGES[num];
+      document.getElementById('detail-stage-num').textContent = data.num;
+      document.getElementById('detail-stage-title').textContent = data.title;
+      document.getElementById('detail-stage-engine').textContent = data.engine;
+      document.getElementById('detail-stage-desc').textContent = data.desc;
+      document.getElementById('detail-stage-mech').textContent = data.mech;
+      document.getElementById('detail-stage-code').textContent = data.code;
+    }
+  </script>
+</body>
+</html>

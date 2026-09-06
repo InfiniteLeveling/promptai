@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Two-Prompt Vibe-Coding Framework • PromptArchitect AI</title>
+  <meta name="description" content="Master the Two-Prompt Vibe-Coding Framework: Separation of Architectural Specification (Prompt A) and Autonomous Agent Implementation (Prompt B)."/>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#10131a",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-low": "#191c22",
+            "surface-container": "#1d2026",
+            "surface-container-high": "#272a31",
+            "surface-container-highest": "#32353c",
+            "on-surface": "#e0e2eb",
+            "on-surface-variant": "#c7c4d7",
+            "outline": "#908fa0",
+            "outline-variant": "#464554",
+            "primary": "#c0c1ff",
+            "primary-container": "#8083ff",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#4cd7f6",
+            "tertiary-container": "#009eb9",
+            "error": "#ffb4ab"
+          },
+          fontFamily: {
+            "display-hero": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-sm": ["Outfit"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined { font-size: 1.15rem; vertical-align: middle; }
+    .perspective-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    .spotlight-card {
+      position: relative;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(
+        350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(192, 193, 255, 0.35),
+        rgba(76, 215, 246, 0.15) 30%,
+        transparent 70%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+    }
+    .spotlight-card:hover::before { opacity: 1; }
+    .spotlight-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25), 0 0 20px -2px rgba(76, 215, 246, 0.15);
+    }
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+    }
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-on-scroll.revealed { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen relative overflow-x-hidden antialiased">
+  
+  <!-- Canvas Ambience -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <div class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-secondary-container/20 rounded-full blur-[140px] opacity-60"></div>
+    <div class="absolute top-[45%] right-[-10%] w-[600px] h-[500px] bg-tertiary-container/15 rounded-full blur-[130px] opacity-40"></div>
+    <div class="absolute inset-0 perspective-grid opacity-30"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <a class="flex items-center gap-2" href="index.html">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-[0_0_20px_rgba(99,102,241,0.5)]">PA</div>
+        <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface" href="sandbox.html">Launch Sandbox ⚡</a>
+      </div>
+    </div>
+    <!-- Subnav -->
+    <div class="border-t border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md">
+      <div class="max-w-6xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
+        <nav class="flex items-center gap-6">
+          <a class="text-on-surface-variant hover:text-on-surface" href="features.html">Features</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="compiler.html">The 7-Stage Engine</a>
+          <a class="text-primary font-semibold" href="two-prompt.html">Two-Prompt Bridge</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="targets.html">Targets</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="pricing.html">Pricing</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="sandbox.html">Live Sandbox</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="docs.html">Docs</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-6xl mx-auto px-6 pt-14 pb-24">
+    
+    <!-- Hero Title -->
+    <div class="text-center max-w-3xl mx-auto mb-16 reveal-on-scroll">
+      <span class="text-label-caps text-secondary bg-secondary-container/30 px-3 py-1 rounded-full border border-secondary/40">Vibe-Coding Methodology</span>
+      <h1 class="font-display-hero text-4xl md:text-5xl font-bold mt-4 tracking-tight">
+        The <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Two-Prompt</span> Bridge
+      </h1>
+      <p class="text-on-surface-variant font-body-lg text-sm md:text-base mt-4 leading-relaxed">
+        Why do 82% of autonomous agent coding sessions fail into infinite loops, hallucinated dependencies, and architectural drift? Because humans ask agents to design and execute simultaneously.
+      </p>
+    </div>
+
+    <!-- The Anatomy: Single vs Two-Prompt Split -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+      
+      <!-- Single Prompt Failure Mode -->
+      <div class="tilt-card spotlight-card bg-surface-container-low rounded-2xl border border-red-500/30 p-8 reveal-on-scroll">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-label-caps text-red-400 bg-red-500/10 px-3 py-1 rounded border border-red-500/30">The Old Way • 82% Failure</span>
+          <span class="material-symbols-outlined text-red-400 text-2xl">error_outline</span>
+        </div>
+        <h3 class="font-headline-lg text-2xl text-on-surface font-bold">The Monolithic Prompt</h3>
+        <p class="text-on-surface-variant text-sm mt-3 leading-relaxed">
+          "Build me a full-stack SaaS app with Stripe, Next.js, and Auth0. Make it clean and test it."
+        </p>
+        <div class="mt-6 space-y-3 text-xs text-on-surface-variant">
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-red-500/20">
+            <span class="material-symbols-outlined text-red-400 text-sm mt-0.5">close</span>
+            <div><strong class="text-on-surface">Immediate Code Generation:</strong> Agent edits files before verifying project layout or schemas.</div>
+          </div>
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-red-500/20">
+            <span class="material-symbols-outlined text-red-400 text-sm mt-0.5">close</span>
+            <div><strong class="text-on-surface">Architectural Drift:</strong> Modifies database migrations midway through writing UI components.</div>
+          </div>
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-red-500/20">
+            <span class="material-symbols-outlined text-red-400 text-sm mt-0.5">close</span>
+            <div><strong class="text-on-surface">Context Exhaustion:</strong> Infinite test debug loops exhaust 100k+ tokens without shipping.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Prompt Solution -->
+      <div class="tilt-card spotlight-card bg-surface-container-low rounded-2xl border border-emerald-500/40 p-8 reveal-on-scroll">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-label-caps text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded border border-emerald-500/30">PromptArchitect • 98.4% First-Pass Pass</span>
+          <span class="material-symbols-outlined text-emerald-400 text-2xl">verified</span>
+        </div>
+        <h3 class="font-headline-lg text-2xl text-on-surface font-bold">The Two-Prompt Separation</h3>
+        <p class="text-on-surface-variant text-sm mt-3 leading-relaxed">
+          Mathematical bifurcation into an immutable Architectural Specification (Prompt A) and a Gated Execution Blueprint (Prompt B).
+        </p>
+        <div class="mt-6 space-y-3 text-xs text-on-surface-variant">
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-emerald-500/20">
+            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+            <div><strong class="text-on-surface">Prompt A (Contract):</strong> Zero code modifications. Locks DB relations, schemas, error codes & PRD.</div>
+          </div>
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-emerald-500/20">
+            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+            <div><strong class="text-on-surface">Prompt B (Blueprint):</strong> Requires tree inspection first, step-by-step terminal checkpoints & git rollbacks.</div>
+          </div>
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container border border-emerald-500/20">
+            <span class="material-symbols-outlined text-emerald-400 text-sm mt-0.5">check_circle</span>
+            <div><strong class="text-on-surface">Subagent Alignment:</strong> Multi-agent systems execute against the spec without hallucination.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Deep Dive: Side-by-Side Blueprint Inspection -->
+    <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8 mb-16 reveal-on-scroll">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-outline-variant/30 pb-6 mb-6">
+        <div>
+          <span class="text-label-caps text-tertiary bg-tertiary/10 px-3 py-1 rounded border border-tertiary/30">Interactive Blueprint Comparison</span>
+          <h2 class="font-headline-lg text-2xl font-bold text-on-surface mt-2">Inspect Generated Dual-Prompts</h2>
+        </div>
+        <div class="flex items-center gap-2 bg-surface-container p-1 rounded-xl border border-outline-variant/30 text-xs">
+          <button id="tab-btn-a" onclick="switchPromptTab('a')" class="px-4 py-2 rounded-lg bg-primary text-surface-container-lowest font-bold transition-all">Prompt A (Spec)</button>
+          <button id="tab-btn-b" onclick="switchPromptTab('b')" class="px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface transition-all">Prompt B (Execution)</button>
+        </div>
+      </div>
+
+      <!-- Prompt A Content View -->
+      <div id="content-prompt-a" class="space-y-4">
+        <div class="flex items-center justify-between text-xs text-outline">
+          <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-sm">contract</span> Phase: Planning & System Specification (PRD.md)</span>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('code-prompt-a').innerText); alert('Prompt A copied to clipboard!');" class="flex items-center gap-1 px-3 py-1 rounded bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface text-[11px]">
+            <span class="material-symbols-outlined text-xs">content_copy</span> Copy Spec
+          </button>
+        </div>
+        <pre id="code-prompt-a" class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+<span class="text-primary font-bold">&lt;role&gt;</span>
+You are the Chief Systems Architect. Your mission is to write a comprehensive, mathematically rigorous system specification for a multi-tenant webhook dispatcher.
+<span class="text-red-400 font-bold">DO NOT WRITE APPLICATION CODE OR CREATE CODEBASE FILES.</span>
+<span class="text-primary font-bold">&lt;/role&gt;</span>
+
+<span class="text-tertiary font-bold">&lt;system_requirements&gt;</span>
+1. INGESTION SLA: Handle 15,000 requests/sec with &lt;10ms p99 response time.
+2. PERSISTENCE: PostgreSQL 16 + Redis Streams with at-least-once delivery guarantees.
+3. IDEMPOTENCY: SHA-256 header hash deduplication window of 300 seconds.
+4. ERROR DOMAINS: Explicit HTTP 400 (Malformed payload), 401 (HMAC signature invalid), 429 (Bucket exhausted), 503 (Upstream partition).
+<span class="text-tertiary font-bold">&lt;/system_requirements&gt;</span>
+
+<span class="text-secondary font-bold">&lt;deliverable_schema&gt;</span>
+Generate exclusively `docs/SPEC.md` adhering to the following structure:
+- Section 1: Entity Relationship Diagram (Mermaid.js)
+- Section 2: OpenAPI 3.1 Yaml Schemas with zero loose string definitions
+- Section 3: Failure Mode & Recovery Matrix (Network partition, retry backoff exponential formula)
+- Section 4: Cryptographic Verification Algorithm (HMAC-SHA256 with timestamp replay buffer)
+<span class="text-secondary font-bold">&lt;/deliverable_schema&gt;</span></pre>
+      </div>
+
+      <!-- Prompt B Content View (Hidden by default) -->
+      <div id="content-prompt-b" class="hidden space-y-4">
+        <div class="flex items-center justify-between text-xs text-outline">
+          <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-tertiary text-sm">terminal</span> Phase: Autonomous Agent Execution Blueprint</span>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('code-prompt-b').innerText); alert('Prompt B copied to clipboard!');" class="flex items-center gap-1 px-3 py-1 rounded bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface text-[11px]">
+            <span class="material-symbols-outlined text-xs">content_copy</span> Copy Blueprint
+          </button>
+        </div>
+        <pre id="code-prompt-b" class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+<span class="text-emerald-400 font-bold">&lt;agent_execution_rules&gt;</span>
+1. PRE-FLIGHT MANDATE: You MUST run `tree -L 2` or view the existing workspace directory before editing or creating any file.
+2. SPEC ADHERENCE: Read `docs/SPEC.md`. All database schema migrations, route paths, and error codes MUST strictly match without deviation.
+3. ATOMIC PHASE PROGRESSION: Execute only one phase at a time. Stop and verify with terminal tests before advancing.
+<span class="text-emerald-400 font-bold">&lt;/agent_execution_rules&gt;</span>
+
+<span class="text-tertiary font-bold">&lt;phases&gt;</span>
+<span class="text-primary">Phase 1: Foundation & DB Schema</span>
+  - Command: `npx prisma migrate dev --name init`
+  - Checkpoint: Verify table creation with `psql -c "\dt"`
+  - Constraint: Ensure indexes exist on `(tenant_id, created_at DESC)` and `(idempotency_key)`.
+
+<span class="text-primary">Phase 2: HMAC Verification Middleware</span>
+  - File: `src/middleware/auth.ts`
+  - Checkpoint: Run `npm test test/auth.test.ts`
+  - Success Criteria: 100% branch coverage on replay window and signature mismatch rejection.
+
+<span class="text-primary">Phase 3: Dispatch Worker & Retry Loop</span>
+  - File: `src/workers/dispatcher.ts`
+  - Checkpoint: Launch worker in background, push 500 mock payloads via test script, verify zero dropped messages.
+<span class="text-tertiary font-bold">&lt;/phases&gt;</span></pre>
+      </div>
+
+    </div>
+
+    <!-- 4 Operational Guardrails Table -->
+    <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8 reveal-on-scroll">
+      <h3 class="font-headline-lg text-xl font-bold text-on-surface mb-6">4 Guardrails Enforced in Every Output</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-surface-container p-5 rounded-xl border border-outline-variant/20">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3">
+            <span class="material-symbols-outlined">rule_folder</span>
+          </div>
+          <h4 class="font-bold text-on-surface text-sm">Directory Inspection First</h4>
+          <p class="text-xs text-on-surface-variant mt-2">Forces coding agents to inspect the folder tree first to prevent overwriting existing conventions or creating duplicate utilities.</p>
+        </div>
+        <div class="bg-surface-container p-5 rounded-xl border border-outline-variant/20">
+          <div class="w-10 h-10 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary mb-3">
+            <span class="material-symbols-outlined">traffic</span>
+          </div>
+          <h4 class="font-bold text-on-surface text-sm">Terminal Gates</h4>
+          <p class="text-xs text-on-surface-variant mt-2">Every code modification must be bookended by a discrete validation command (e.g. `npm run test:unit`, `tsc --noEmit`).</p>
+        </div>
+        <div class="bg-surface-container p-5 rounded-xl border border-outline-variant/20">
+          <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary mb-3">
+            <span class="material-symbols-outlined">restart_alt</span>
+          </div>
+          <h4 class="font-bold text-on-surface text-sm">Rollback Thresholds</h4>
+          <p class="text-xs text-on-surface-variant mt-2">Specifies exact failure limits. If a unit test fails 3 consecutive times, the agent reverts git state rather than continuing to patch broken code.</p>
+        </div>
+        <div class="bg-surface-container p-5 rounded-xl border border-outline-variant/20">
+          <div class="w-10 h-10 rounded-lg bg-emerald-400/10 flex items-center justify-center text-emerald-400 mb-3">
+            <span class="material-symbols-outlined">code_off</span>
+          </div>
+          <h4 class="font-bold text-on-surface text-sm">Negative Constraints</h4>
+          <p class="text-xs text-on-surface-variant mt-2">Explicitly outlaws antipatterns: no mock data in production endpoints, no any types in TypeScript, no bypass of schema validation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-16 text-center bg-surface-container p-10 rounded-2xl border border-outline-variant/30 reveal-on-scroll">
+      <h3 class="font-headline-lg text-2xl font-bold text-on-surface">Experience the Two-Prompt Framework in Action</h3>
+      <p class="text-on-surface-variant text-sm mt-2 max-w-lg mx-auto">Generate real-time Prompt A and Prompt B specs directly inside our Live Compiler Sandbox.</p>
+      <a class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-primary-container to-secondary text-surface-container-lowest font-bold text-sm shadow-lg hover:scale-105 transition-all" href="sandbox.html">
+        <span>Try Live Sandbox</span>
+        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </a>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
+    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Back to Home</a>
+  </footer>
+
+  <script>
+    function switchPromptTab(tab) {
+      const btnA = document.getElementById('tab-btn-a');
+      const btnB = document.getElementById('tab-btn-b');
+      const viewA = document.getElementById('content-prompt-a');
+      const viewB = document.getElementById('content-prompt-b');
+
+      if (tab === 'a') {
+        btnA.className = 'px-4 py-2 rounded-lg bg-primary text-surface-container-lowest font-bold transition-all';
+        btnB.className = 'px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface transition-all';
+        viewA.classList.remove('hidden');
+        viewB.classList.add('hidden');
+      } else {
+        btnB.className = 'px-4 py-2 rounded-lg bg-tertiary text-surface-container-lowest font-bold transition-all';
+        btnA.className = 'px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface transition-all';
+        viewB.classList.remove('hidden');
+        viewA.classList.add('hidden');
+      }
+    }
+  </script>
+  <script type="module" src="js/effects.js"></script>
+</body>
+</html>

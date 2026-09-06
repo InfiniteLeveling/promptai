@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Developer Documentation & API • PromptArchitect AI</title>
+  <meta name="description" content="Technical documentation and REST API reference for the PromptArchitect 7-Stage Core Compiler, 100-Point Scorer, and Target Adapters."/>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#10131a",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-low": "#191c22",
+            "surface-container": "#1d2026",
+            "surface-container-high": "#272a31",
+            "surface-container-highest": "#32353c",
+            "on-surface": "#e0e2eb",
+            "on-surface-variant": "#c7c4d7",
+            "outline": "#908fa0",
+            "outline-variant": "#464554",
+            "primary": "#c0c1ff",
+            "primary-container": "#8083ff",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#4cd7f6",
+            "tertiary-container": "#009eb9",
+            "error": "#ffb4ab"
+          },
+          fontFamily: {
+            "display-hero": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-sm": ["Outfit"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined { font-size: 1.15rem; vertical-align: middle; }
+    .perspective-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    .spotlight-card {
+      position: relative;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(
+        350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(192, 193, 255, 0.35),
+        rgba(76, 215, 246, 0.15) 30%,
+        transparent 70%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+    }
+    .spotlight-card:hover::before { opacity: 1; }
+    .spotlight-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25), 0 0 20px -2px rgba(76, 215, 246, 0.15);
+    }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen relative overflow-x-hidden antialiased">
+  
+  <!-- Canvas Ambience -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <div class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-secondary-container/20 rounded-full blur-[140px] opacity-60"></div>
+    <div class="absolute top-[40%] right-[-10%] w-[600px] h-[500px] bg-tertiary-container/15 rounded-full blur-[130px] opacity-40"></div>
+    <div class="absolute inset-0 perspective-grid opacity-30"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a class="flex items-center gap-2" href="index.html">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-[0_0_20px_rgba(99,102,241,0.5)]">PA</div>
+        <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface" href="sandbox.html">Launch Sandbox ⚡</a>
+      </div>
+    </div>
+    <!-- Subnav -->
+    <div class="border-t border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
+        <nav class="flex items-center gap-6">
+          <a class="text-on-surface-variant hover:text-on-surface" href="features.html">Features</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="compiler.html">The 7-Stage Engine</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="two-prompt.html">Two-Prompt Bridge</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="targets.html">Targets</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="pricing.html">Pricing</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="sandbox.html">Live Sandbox</a>
+          <a class="text-primary font-semibold" href="docs.html">Docs</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Docs Layout: Sidebar + Main Body -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-24 flex flex-col md:flex-row gap-10">
+    
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 flex-shrink-0 space-y-6 text-xs">
+      <div>
+        <div class="font-bold text-on-surface text-sm uppercase tracking-wider mb-2 font-headline-sm">Getting Started</div>
+        <ul class="space-y-1 text-on-surface-variant">
+          <li><a class="block py-1 text-primary font-semibold" href="#overview">Overview & Architecture</a></li>
+          <li><a class="block py-1 hover:text-on-surface" href="#quickstart">Quickstart (CLI & API)</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="font-bold text-on-surface text-sm uppercase tracking-wider mb-2 font-headline-sm">Core Concepts</div>
+        <ul class="space-y-1 text-on-surface-variant">
+          <li><a class="block py-1 hover:text-on-surface" href="#pipeline">7-Stage Engine Specs</a></li>
+          <li><a class="block py-1 hover:text-on-surface" href="#scorer">100-Point Quality Metric</a></li>
+          <li><a class="block py-1 hover:text-on-surface" href="#twoprompt">Two-Prompt Protocol</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="font-bold text-on-surface text-sm uppercase tracking-wider mb-2 font-headline-sm">REST API Reference</div>
+        <ul class="space-y-1 text-on-surface-variant font-mono text-[11px]">
+          <li><a class="block py-1 hover:text-primary" href="#endpoint-analyze">POST /api/prompts/analyze</a></li>
+          <li><a class="block py-1 hover:text-primary" href="#endpoint-generate">POST /api/prompts/generate</a></li>
+          <li><a class="block py-1 hover:text-primary" href="#endpoint-critique">POST /api/prompts/critique</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Docs Content Area -->
+    <main class="flex-1 space-y-12">
+      
+      <!-- Section 1: Overview -->
+      <section id="overview" class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8">
+        <span class="text-label-caps text-primary bg-primary/10 px-3 py-1 rounded border border-primary/30">System Overview</span>
+        <h1 class="font-display-hero text-3xl font-bold mt-4">PromptArchitect AI Documentation</h1>
+        <p class="text-on-surface-variant text-sm mt-3 leading-relaxed">
+          PromptArchitect AI is an autonomous prompt compiler that bridges the gap between ambiguous human software requirements and deterministic execution by autonomous coding agents.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-xs">
+          <div class="p-4 rounded-xl bg-surface-container border border-outline-variant/20">
+            <div class="text-primary font-bold">Model Neutrality</div>
+            <div class="text-outline mt-1">Outputs compile natively for Claude, Gemini, Cursor, Antigravity, and GPT-4o.</div>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container border border-outline-variant/20">
+            <div class="text-tertiary font-bold">Sub-200ms Latency</div>
+            <div class="text-outline mt-1">Stage 1 through 3 constraint extraction executes in under 180ms p95.</div>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container border border-outline-variant/20">
+            <div class="text-emerald-400 font-bold">98.4% First-Pass</div>
+            <div class="text-outline mt-1">Eliminates prompt regression and hallucinated package imports.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: REST API Reference -->
+      <section id="endpoint-analyze" class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono font-bold text-xs">POST</span>
+          <span class="font-mono text-sm text-on-surface font-semibold">/api/prompts/analyze</span>
+        </div>
+        <p class="text-xs text-on-surface-variant mt-2">
+          Passes raw user input to Stages 1-3. Returns domain classification, extracted constraints, heuristic score, and recommended clarification chips.
+        </p>
+
+        <!-- Code Snippet Switcher -->
+        <div class="mt-6">
+          <div class="flex items-center gap-2 border-b border-outline-variant/30 pb-2 text-xs font-mono">
+            <button onclick="switchApiTab('curl')" id="tab-curl" class="text-primary font-bold">cURL</button>
+            <span class="text-outline">|</span>
+            <button onclick="switchApiTab('js')" id="tab-js" class="text-on-surface-variant hover:text-on-surface">JavaScript</button>
+            <span class="text-outline">|</span>
+            <button onclick="switchApiTab('py')" id="tab-py" class="text-on-surface-variant hover:text-on-surface">Python</button>
+          </div>
+
+          <pre id="api-code-curl" class="mt-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+curl -X POST https://api.promptarchitect.ai/v1/analyze \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "raw_prompt": "Build a multi-tenant webhook dispatcher in TypeScript with PostgreSQL",
+    "target_model": "google-antigravity",
+    "strict_mode": true
+  }'</pre>
+
+          <pre id="api-code-js" class="hidden mt-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+const res = await fetch("https://api.promptarchitect.ai/v1/analyze", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    raw_prompt: "Build a multi-tenant webhook dispatcher in TypeScript with PostgreSQL",
+    target_model: "google-antigravity",
+    strict_mode: true
+  })
+});
+const data = await res.json();
+console.log("Quality Score:", data.heuristic_score);</pre>
+
+          <pre id="api-code-py" class="hidden mt-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+import requests
+
+response = requests.post(
+    "https://api.promptarchitect.ai/v1/analyze",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={
+        "raw_prompt": "Build a multi-tenant webhook dispatcher in TypeScript with PostgreSQL",
+        "target_model": "google-antigravity",
+        "strict_mode": True
+    }
+)
+print(response.json())</pre>
+        </div>
+
+        <!-- Response Schema Sample -->
+        <div class="mt-6">
+          <div class="text-xs font-mono text-outline uppercase tracking-wider mb-2">Sample JSON Response (200 OK)</div>
+          <pre class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed">
+{
+  "status": "success",
+  "heuristic_score": 94,
+  "domain_archetype": "backend_microservice",
+  "extracted_constraints": [
+    "Database: PostgreSQL 16 (Relational 3NF)",
+    "Language: TypeScript (Strict mode)",
+    "Pattern: Multi-tenant partitioning via tenant_id"
+  ],
+  "clarification_chips": [
+    { "id": "chip_1", "text": "Enforce HMAC-SHA256 signature verification", "delta_points": 4 },
+    { "id": "chip_2", "text": "Require compound index on (tenant_id, created_at DESC)", "delta_points": 5 }
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <!-- Section 3: Two-Prompt Protocol Spec -->
+      <section id="twoprompt" class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8">
+        <span class="text-label-caps text-secondary bg-secondary-container/30 px-3 py-1 rounded border border-secondary/40">Vibe Protocol</span>
+        <h2 class="font-headline-lg text-2xl font-bold mt-4">The Two-Prompt Execution Protocol</h2>
+        <p class="text-on-surface-variant text-sm mt-2 leading-relaxed">
+          When executing autonomous workflows, always decouple the Architectural Contract from the Execution Blueprint:
+        </p>
+        <div class="space-y-4 mt-6 text-xs">
+          <div class="p-4 rounded-xl bg-surface-container border border-primary/20">
+            <div class="text-primary font-bold text-sm">Step 1: Ingest Prompt A</div>
+            <p class="text-on-surface-variant mt-1">Directs the agent to author only documentation (`docs/SPEC.md`, `PRD.md`, schema diagrams). Zero codebase modifications permitted.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container border border-tertiary/20">
+            <div class="text-tertiary font-bold text-sm">Step 2: User / Gate Review</div>
+            <p class="text-on-surface-variant mt-1">Review the produced specifications to confirm DB relationships, error codes, and SLAs before any code is generated.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container border border-emerald-500/20">
+            <div class="text-emerald-400 font-bold text-sm">Step 3: Feed Prompt B</div>
+            <p class="text-on-surface-variant mt-1">The agent executes atomic phases one-by-one against the locked specification, bookended by terminal test checkpoint commands.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
+    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Back to Home</a>
+  </footer>
+
+  <script>
+    function switchApiTab(lang) {
+      const langs = ['curl', 'js', 'py'];
+      langs.forEach(l => {
+        const btn = document.getElementById(`tab-${l}`);
+        const code = document.getElementById(`api-code-${l}`);
+        if (l === lang) {
+          btn.className = 'text-primary font-bold';
+          code.classList.remove('hidden');
+        } else {
+          btn.className = 'text-on-surface-variant hover:text-on-surface';
+          code.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+  <script type="module" src="js/effects.js"></script>
+</body>
+</html>

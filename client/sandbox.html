@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Live Compiler Sandbox • PromptArchitect AI</title>
+  <meta name="description" content="Interactive 7-stage prompt compiler sandbox. Test multi-domain archetypes, clarification chips, and 100-point heuristic scoring in real-time."/>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#10131a",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-low": "#191c22",
+            "surface-container": "#1d2026",
+            "surface-container-high": "#272a31",
+            "surface-container-highest": "#32353c",
+            "on-surface": "#e0e2eb",
+            "on-surface-variant": "#c7c4d7",
+            "outline": "#908fa0",
+            "outline-variant": "#464554",
+            "primary": "#c0c1ff",
+            "primary-container": "#8083ff",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#4cd7f6",
+            "tertiary-container": "#009eb9",
+            "error": "#ffb4ab"
+          },
+          fontFamily: {
+            "display-hero": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-sm": ["Outfit"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined { font-size: 1.15rem; vertical-align: middle; }
+    .perspective-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    .spotlight-card {
+      position: relative;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(
+        350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(192, 193, 255, 0.35),
+        rgba(76, 215, 246, 0.15) 30%,
+        transparent 70%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+    }
+    .spotlight-card:hover::before { opacity: 1; }
+    .spotlight-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25), 0 0 20px -2px rgba(76, 215, 246, 0.15);
+    }
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen relative overflow-x-hidden antialiased">
+  
+  <!-- Canvas Ambience -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <div class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-secondary-container/20 rounded-full blur-[140px] opacity-60"></div>
+    <div class="absolute top-[40%] right-[-10%] w-[600px] h-[500px] bg-tertiary-container/15 rounded-full blur-[130px] opacity-40"></div>
+    <div class="absolute inset-0 perspective-grid opacity-30"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a class="flex items-center gap-2" href="index.html">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-[0_0_20px_rgba(99,102,241,0.5)]">PA</div>
+        <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Engine v2.4 Online
+        </span>
+      </div>
+    </div>
+    <!-- Subnav -->
+    <div class="border-t border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
+        <nav class="flex items-center gap-6">
+          <a class="text-on-surface-variant hover:text-on-surface" href="features.html">Features</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="compiler.html">The 7-Stage Engine</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="two-prompt.html">Two-Prompt Bridge</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="targets.html">Targets</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="pricing.html">Pricing</a>
+          <a class="text-primary font-semibold" href="sandbox.html">Live Sandbox</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="docs.html">Docs</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-20">
+    
+    <!-- Workbench Header -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="font-display-hero text-2xl md:text-3xl font-bold text-on-surface">Interactive Compiler Workbench</h1>
+        <p class="text-xs text-on-surface-variant mt-1">Ingest raw thoughts &rarr; Heuristic constraint expansion &rarr; Dual-Prompt compilation.</p>
+      </div>
+
+      <!-- Domain Archetype Selector Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0 text-xs font-mono">
+        <button onclick="loadArchetype('saas')" class="archetype-btn px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface whitespace-nowrap">SaaS Web App</button>
+        <button onclick="loadArchetype('microservice')" class="archetype-btn px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface whitespace-nowrap">Microservice API</button>
+        <button onclick="loadArchetype('mobile')" class="archetype-btn px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface whitespace-nowrap">React Native</button>
+        <button onclick="loadArchetype('canvas')" class="archetype-btn px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface whitespace-nowrap">3D Three.js</button>
+      </div>
+    </div>
+
+    <!-- 2-Column Split: Input & Scorer vs Output Viewer -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Column: Ingestion, Prompt Input & Clarification Chips (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Input Container -->
+        <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1 rounded-lg bg-primary/20 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">edit_note</span> Text Prompt
+              </button>
+              <button onclick="alert('Simulated voice ingestion active. Speak to transcribe.');" class="px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30 text-xs font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">mic</span> Voice Ingest
+              </button>
+            </div>
+            <button onclick="clearPrompt()" class="text-outline hover:text-on-surface text-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">restart_alt</span> Clear
+            </button>
+          </div>
+
+          <!-- Textarea -->
+          <textarea id="prompt-input" oninput="recalculateScore()" rows="7" class="w-full bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4 text-xs font-code-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-all resize-none leading-relaxed" placeholder="Type your unformed project requirements here or select an Archetype pill above..."></textarea>
+
+          <!-- Dynamic Clarification Chips -->
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono text-outline uppercase tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-tertiary text-xs">auto_awesome</span> Recommended Constraint Chips
+              </span>
+              <span class="text-[10px] text-tertiary">Click to inject (+5 pts)</span>
+            </div>
+            <div id="chips-container" class="flex flex-wrap gap-2">
+              <button onclick="addChip(this, 'Must enforce TypeScript strict mode with zero any types.')" class="px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-primary transition-all">+ Strict TypeScript</button>
+              <button onclick="addChip(this, 'Include Redis distributed locking with 30s TTL on worker queues.')" class="px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-primary transition-all">+ Redis Distributed Lock</button>
+              <button onclick="addChip(this, 'Database indexes required on (tenant_id, created_at DESC).')" class="px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-primary transition-all">+ Compound DB Indexes</button>
+              <button onclick="addChip(this, 'Unit tests must achieve &ge;85% branch coverage before advancing.')" class="px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-primary transition-all">+ 85% Test Coverage Gate</button>
+              <button onclick="addChip(this, 'Enforce HMAC-SHA256 signature verification with 5-minute replay window.')" class="px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface-variant hover:text-primary transition-all">+ HMAC Replay Defense</button>
+            </div>
+          </div>
+
+          <!-- Compilation Action -->
+          <div class="mt-6 flex items-center justify-between pt-4 border-t border-outline-variant/20">
+            <div class="text-[11px] text-outline flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm text-tertiary">bolt</span> Target:
+              <select id="target-select" class="bg-surface-container border border-outline-variant/30 rounded px-2 py-1 text-on-surface text-xs">
+                <option value="twoprompt">Two-Prompt Vibe Framework</option>
+                <option value="antigravity">Google Antigravity</option>
+                <option value="cursor">Cursor .cursorrules / .mdc</option>
+                <option value="claude">Claude Code Semantic XML</option>
+              </select>
+            </div>
+            <button id="compile-btn" onclick="runCompilation()" class="px-6 py-2.5 rounded-full bg-gradient-to-r from-primary-container to-secondary text-surface-container-lowest font-bold text-xs shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">play_arrow</span> Compile Prompt ⚡
+            </button>
+          </div>
+        </div>
+
+        <!-- 7-Stage Execution Visualizer (Fires during compilation) -->
+        <div id="pipeline-status-card" class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-headline-lg text-sm font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-base">alt_route</span> Compiler Pipeline Status
+            </h3>
+            <span id="pipeline-badge" class="text-[10px] font-mono text-outline bg-surface-container px-2.5 py-0.5 rounded">IDLE</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px]">
+            <div id="st-1" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">1. Ingest</div>
+            <div id="st-2" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">2. Archetype</div>
+            <div id="st-3" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">3. Schema</div>
+            <div id="st-4" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">4. Synth v1</div>
+            <div id="st-5" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">5. Critique</div>
+            <div id="st-6" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">6. Auto-Repair</div>
+            <div id="st-7" class="p-2 rounded bg-surface-container text-outline border border-outline-variant/20">7. Adapter</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: 100-Pt Quality Score & Output (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- 100-Point Scorer Radar Card -->
+        <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-headline-lg text-sm font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-base">speed</span> Heuristic Score
+            </h3>
+            <span id="score-grade" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30">PASS (&ge;90)</span>
+          </div>
+
+          <!-- Radial Circle & Sub-metrics -->
+          <div class="flex items-center gap-6">
+            <!-- Radial SVG -->
+            <div class="relative w-24 h-24 flex-shrink-0 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path class="text-surface-container-high" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                <path id="score-circle" class="text-primary transition-all duration-500" stroke-dasharray="94, 100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="total-score" class="font-display-hero text-2xl font-bold text-on-surface">94</span>
+                <span class="text-[9px] text-outline uppercase font-mono">/ 100 pts</span>
+              </div>
+            </div>
+
+            <!-- Detailed Weighted Metric Sliders -->
+            <div class="flex-1 space-y-2 text-[11px]">
+              <div>
+                <div class="flex justify-between text-outline"><span>Goal Clarity</span><span id="score-clarity" class="font-bold text-on-surface">19/20</span></div>
+                <div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-0.5"><div id="bar-clarity" class="w-[95%] h-full bg-primary rounded-full"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-outline"><span>Completeness</span><span id="score-comp" class="font-bold text-on-surface">19/20</span></div>
+                <div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-0.5"><div id="bar-comp" class="w-[95%] h-full bg-primary rounded-full"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-outline"><span>Constraint Rigor</span><span id="score-rigor" class="font-bold text-on-surface">15/15</span></div>
+                <div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-0.5"><div id="bar-rigor" class="w-[100%] h-full bg-tertiary rounded-full"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-outline"><span>Agent Gating</span><span id="score-gating" class="font-bold text-on-surface">14/15</span></div>
+                <div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-0.5"><div id="bar-gating" class="w-[93%] h-full bg-emerald-400 rounded-full"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compiled Output Container -->
+        <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-headline-lg text-sm font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-tertiary text-base">terminal</span> Compiled Blueprint Output
+            </h3>
+            <button onclick="copyOutput()" class="flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[11px] text-on-surface">
+              <span class="material-symbols-outlined text-xs">content_copy</span> Copy
+            </button>
+          </div>
+
+          <pre id="sandbox-output" class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 font-code-sm text-[11px] text-on-surface-variant overflow-x-auto leading-relaxed h-[340px]"></pre>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
+    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Back to Home</a>
+  </footer>
+
+  <script>
+    const archetypes = {
+      saas: {
+        text: `Build a multi-tenant webhook dispatcher microservice in TypeScript with PostgreSQL 16 and Redis Streams. It must handle 15k req/sec with <10ms latency. Enforce HMAC-SHA256 signature verification with a 5-minute replay window, and retry with exponential backoff on 5xx failures.`,
+        score: 94
+      },
+      microservice: {
+        text: `Design an event-driven payment reconciliation worker in Go using AWS SQS and DynamoDB. Requires idempotency keys calculated from SHA-256(order_id + amount), dead letter queue threshold of 3 retries, and Prometheus metrics for ingest latency.`,
+        score: 92
+      },
+      mobile: {
+        text: `Develop a cross-platform React Native offline-first encrypted notes app using WatermelonDB and SQLite with AES-256-GCM encryption. Must include biometrics authentication (FaceID/Fingerprint) and background sync upon internet reconnection.`,
+        score: 90
+      },
+      canvas: {
+        text: `Create an interactive WebGL 3D solar system visualizer using Three.js and shaders. Orbits must adhere to Kepler's laws of planetary motion, with realistic particle ring systems, bloom post-processing, and smooth camera tweening.`,
+        score: 91
+      }
+    };
+
+    function loadArchetype(key) {
+      const data = archetypes[key];
+      document.getElementById('prompt-input').value = data.text;
+      recalculateScore();
+      runCompilation();
+    }
+
+    function addChip(btn, text) {
+      const input = document.getElementById('prompt-input');
+      input.value = input.value.trim() + " " + text;
+      btn.classList.add('bg-primary/20', 'border-primary', 'text-primary');
+      recalculateScore();
+    }
+
+    function clearPrompt() {
+      document.getElementById('prompt-input').value = '';
+      recalculateScore();
+    }
+
+    function recalculateScore() {
+      const text = document.getElementById('prompt-input').value.trim();
+      let score = 50;
+      if (text.length > 50) score += 15;
+      if (text.includes('TypeScript') || text.includes('PostgreSQL') || text.includes('Redis') || text.includes('Go')) score += 12;
+      if (text.includes('HMAC') || text.includes('AES') || text.includes('SHA')) score += 8;
+      if (text.includes('replay') || text.includes('idempotency') || text.includes('TTL')) score += 5;
+      if (text.includes('retry') || text.includes('coverage') || text.includes('test')) score += 4;
+      if (score > 100) score = 100;
+
+      document.getElementById('total-score').innerText = score;
+      document.getElementById('score-circle').setAttribute('stroke-dasharray', `${score}, 100`);
+
+      const grade = document.getElementById('score-grade');
+      if (score >= 90) {
+        grade.innerText = 'PASS (>=90)';
+        grade.className = 'text-xs font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/30';
+      } else if (score >= 75) {
+        grade.innerText = 'NEEDS EXPANSION (75-89)';
+        grade.className = 'text-xs font-mono font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30';
+      } else {
+        grade.innerText = 'FAIL (<75)';
+        grade.className = 'text-xs font-mono font-bold text-red-400 bg-red-400/10 px-2 py-0.5 rounded border border-red-500/30';
+      }
+    }
+
+    function runCompilation() {
+      const btn = document.getElementById('compile-btn');
+      const badge = document.getElementById('pipeline-badge');
+      const target = document.getElementById('target-select').value;
+      const text = document.getElementById('prompt-input').value.trim();
+
+      btn.disabled = true;
+      badge.innerText = 'COMPILING...';
+      badge.className = 'text-[10px] font-mono text-tertiary bg-tertiary/10 px-2.5 py-0.5 rounded animate-pulse';
+
+      let stage = 1;
+      const interval = setInterval(() => {
+        if (stage <= 7) {
+          const el = document.getElementById(`st-${stage}`);
+          el.className = 'p-2 rounded bg-primary/20 text-primary border border-primary font-bold';
+          stage++;
+        } else {
+          clearInterval(interval);
+          badge.innerText = 'COMPLETE (100%)';
+          badge.className = 'text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded';
+          btn.disabled = false;
+          renderOutput(target, text);
+        }
+      }, 180);
+    }
+
+    function renderOutput(target, text) {
+      const output = document.getElementById('sandbox-output');
+      if (target === 'twoprompt') {
+        output.innerText = `// ==========================================
+// PROMPT A: ARCHITECTURAL SPECIFICATION CONTRACT
+// ==========================================
+<role>
+You are the Lead Systems Architect. Write docs/SPEC.md only. Do NOT edit code files.
+</role>
+<system_requirements>
+${text || 'Multi-tenant event processing engine'}
+</system_requirements>
+<contracts>
+- Database: Strict 3NF relational layout with tenant_id composite indexes.
+- Idempotency: SHA-256 header hash deduplication window of 300 seconds.
+- Deliverables: Entity Relationship Diagram & OpenAPI 3.1 YAML schema.
+</contracts>
+
+// ==========================================
+// PROMPT B: AGENT EXECUTION BLUEPRINT
+// ==========================================
+<execution_rules>
+1. Run \`tree -L 2\` before making any file modifications.
+2. Comply with docs/SPEC.md. No deviations.
+3. Advance strictly through atomic phases with terminal test checkpoints.
+</execution_rules>
+<phase_1>
+  - Command: \`npx prisma migrate dev\`
+  - Checkpoint: Verify table creation with psql.
+</phase_1>`;
+      } else if (target === 'cursor') {
+        output.innerText = `---
+description: Auto-compiled rules for project
+globs: ["src/**/*.ts", "test/**/*.ts"]
+alwaysApply: true
+---
+# Architectural Invariants
+- ${text || 'Strict TypeScript rules'}
+- Never use \`any\`. Use Zod runtime validation on boundary inputs.
+- Run \`npm test\` after each file modification before continuing.`;
+      } else if (target === 'claude') {
+        output.innerText = `<context>
+Autonomous refactoring agent executing precision blueprint.
+</context>
+<constraints>
+${text || 'Strict system requirements'}
+</constraints>
+<instructions>
+1. Inspect directory tree.
+2. Implement schema models.
+3. Validate against test suite.
+</instructions>`;
+      } else {
+        output.innerText = `# Google Antigravity Task Blueprint
+## Mandate: Inspect workspace root before editing.
+## Constraints:
+${text || 'Strict parameters'}
+## Terminal Checkpoints:
+- Run test validation suite after atomic stage completion.`;
+      }
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('sandbox-output').innerText;
+      navigator.clipboard.writeText(text);
+      alert('Blueprint copied to clipboard!');
+    }
+
+    // Default load SaaS
+    loadArchetype('saas');
+  </script>
+  <script type="module" src="js/effects.js"></script>
+</body>
+</html>

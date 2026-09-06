@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Agent Targets & Adapters • PromptArchitect AI</title>
+  <meta name="description" content="Explore PromptArchitect's 5 native agent compilation targets: Google Antigravity, Cursor .cursorrules/.mdc, Claude Code XML, v0, and Midjourney v6."/>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#10131a",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-low": "#191c22",
+            "surface-container": "#1d2026",
+            "surface-container-high": "#272a31",
+            "surface-container-highest": "#32353c",
+            "on-surface": "#e0e2eb",
+            "on-surface-variant": "#c7c4d7",
+            "outline": "#908fa0",
+            "outline-variant": "#464554",
+            "primary": "#c0c1ff",
+            "primary-container": "#8083ff",
+            "secondary": "#d0bcff",
+            "secondary-container": "#571bc1",
+            "tertiary": "#4cd7f6",
+            "tertiary-container": "#009eb9",
+            "error": "#ffb4ab"
+          },
+          fontFamily: {
+            "display-hero": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-sm": ["Outfit"],
+            "body-md": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined { font-size: 1.15rem; vertical-align: middle; }
+    .perspective-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    .spotlight-card {
+      position: relative;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: radial-gradient(
+        350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(192, 193, 255, 0.35),
+        rgba(76, 215, 246, 0.15) 30%,
+        transparent 70%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+    }
+    .spotlight-card:hover::before { opacity: 1; }
+    .spotlight-card:hover {
+      box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25), 0 0 20px -2px rgba(76, 215, 246, 0.15);
+    }
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, box-shadow 0.25s ease;
+    }
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-on-scroll.revealed { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen relative overflow-x-hidden antialiased">
+  
+  <!-- Canvas Ambience -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+    <div class="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-secondary-container/20 rounded-full blur-[140px] opacity-60"></div>
+    <div class="absolute top-[50%] right-[-10%] w-[600px] h-[500px] bg-tertiary-container/15 rounded-full blur-[130px] opacity-40"></div>
+    <div class="absolute inset-0 perspective-grid opacity-30"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant/30">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <a class="flex items-center gap-2" href="index.html">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center text-surface-container-lowest font-black text-sm shadow-[0_0_20px_rgba(99,102,241,0.5)]">PA</div>
+        <span class="font-headline-sm font-bold text-lg text-on-surface">PromptArchitect AI</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a class="px-4 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface" href="sandbox.html">Launch Sandbox ⚡</a>
+      </div>
+    </div>
+    <!-- Subnav -->
+    <div class="border-t border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md">
+      <div class="max-w-6xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
+        <nav class="flex items-center gap-6">
+          <a class="text-on-surface-variant hover:text-on-surface" href="features.html">Features</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="compiler.html">The 7-Stage Engine</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="two-prompt.html">Two-Prompt Bridge</a>
+          <a class="text-primary font-semibold" href="targets.html">Targets</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="pricing.html">Pricing</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="sandbox.html">Live Sandbox</a>
+          <a class="text-on-surface-variant hover:text-on-surface" href="docs.html">Docs</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-6xl mx-auto px-6 pt-14 pb-24">
+    
+    <!-- Hero Title -->
+    <div class="text-center max-w-3xl mx-auto mb-16 reveal-on-scroll">
+      <span class="text-label-caps text-tertiary bg-tertiary/10 px-3 py-1 rounded-full border border-tertiary/30">Target Adapters</span>
+      <h1 class="font-display-hero text-4xl md:text-5xl font-bold mt-4 tracking-tight">
+        Zero Prompt Friction for <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Any Agent Engine</span>
+      </h1>
+      <p class="text-on-surface-variant font-body-lg text-sm md:text-base mt-4 leading-relaxed">
+        Autonomous coding models have vastly different syntactic appetites. PromptArchitect AI translates your requirements into the exact structural dialect required for maximum adherence.
+      </p>
+    </div>
+
+    <!-- 5 Target Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
+      
+      <!-- Target 1: Antigravity -->
+      <div onclick="selectTarget('antigravity')" id="card-antigravity" class="tilt-card spotlight-card bg-surface-container-low p-5 rounded-2xl border-2 border-primary cursor-pointer transition-all">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3">
+          <span class="material-symbols-outlined">rocket_launch</span>
+        </div>
+        <h4 class="font-bold text-on-surface text-sm">Google Antigravity</h4>
+        <p class="text-[11px] text-outline mt-1">.agents/skills & terminal gates</p>
+        <div class="mt-3 text-[10px] text-primary font-mono bg-primary/10 px-2 py-0.5 rounded w-fit">Active</div>
+      </div>
+
+      <!-- Target 2: Cursor -->
+      <div onclick="selectTarget('cursor')" id="card-cursor" class="tilt-card spotlight-card bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 cursor-pointer transition-all">
+        <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary mb-3">
+          <span class="material-symbols-outlined">integration_instructions</span>
+        </div>
+        <h4 class="font-bold text-on-surface text-sm">Cursor IDE</h4>
+        <p class="text-[11px] text-outline mt-1">.cursorrules & .mdc globs</p>
+        <div class="mt-3 text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded w-fit">Adapter</div>
+      </div>
+
+      <!-- Target 3: Claude Code -->
+      <div onclick="selectTarget('claude')" id="card-claude" class="tilt-card spotlight-card bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 cursor-pointer transition-all">
+        <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary mb-3">
+          <span class="material-symbols-outlined">code_blocks</span>
+        </div>
+        <h4 class="font-bold text-on-surface text-sm">Claude Code</h4>
+        <p class="text-[11px] text-outline mt-1">Semantic XML Containers</p>
+        <div class="mt-3 text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded w-fit">Adapter</div>
+      </div>
+
+      <!-- Target 4: v0 -->
+      <div onclick="selectTarget('v0')" id="card-v0" class="tilt-card spotlight-card bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 cursor-pointer transition-all">
+        <div class="w-10 h-10 rounded-xl bg-emerald-400/10 flex items-center justify-center text-emerald-400 mb-3">
+          <span class="material-symbols-outlined">layers</span>
+        </div>
+        <h4 class="font-bold text-on-surface text-sm">v0 (Vercel)</h4>
+        <p class="text-[11px] text-outline mt-1">React, Lucide, Tailwind</p>
+        <div class="mt-3 text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded w-fit">Adapter</div>
+      </div>
+
+      <!-- Target 5: Midjourney -->
+      <div onclick="selectTarget('midjourney')" id="card-midjourney" class="tilt-card spotlight-card bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30 cursor-pointer transition-all">
+        <div class="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center text-purple-400 mb-3">
+          <span class="material-symbols-outlined">palette</span>
+        </div>
+        <h4 class="font-bold text-on-surface text-sm">Midjourney v6</h4>
+        <p class="text-[11px] text-outline mt-1">Optics & Parameter Flags</p>
+        <div class="mt-3 text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded w-fit">Adapter</div>
+      </div>
+
+    </div>
+
+    <!-- Target Output Previewer -->
+    <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8 mb-16 reveal-on-scroll">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-outline-variant/30 pb-6 mb-6">
+        <div>
+          <span id="target-badge" class="text-label-caps text-primary bg-primary/10 px-3 py-1 rounded border border-primary/30">Google Antigravity Target</span>
+          <h3 id="target-title" class="font-headline-lg text-2xl font-bold text-on-surface mt-2">Autonomous Agent Task Spec</h3>
+        </div>
+        <button onclick="copyCurrentTarget()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-xs font-semibold text-on-surface">
+          <span class="material-symbols-outlined text-sm">content_copy</span> Copy Blueprint
+        </button>
+      </div>
+
+      <pre id="target-code" class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/20 font-code-sm text-xs text-on-surface-variant overflow-x-auto leading-relaxed max-h-[460px]"></pre>
+    </div>
+
+    <!-- Format Capability Matrix -->
+    <div class="spotlight-card bg-surface-container-low rounded-2xl border border-outline-variant/30 p-8 reveal-on-scroll">
+      <h3 class="font-headline-lg text-xl font-bold text-on-surface mb-6">Adapter Capability Matrix</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-outline-variant/30 text-outline">
+              <th class="py-3 px-4">Feature / Capability</th>
+              <th class="py-3 px-4 text-primary">Antigravity</th>
+              <th class="py-3 px-4 text-secondary">Cursor MDC</th>
+              <th class="py-3 px-4 text-tertiary">Claude Code XML</th>
+              <th class="py-3 px-4 text-emerald-400">v0 React</th>
+              <th class="py-3 px-4 text-purple-400">Midjourney v6</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant/20 text-on-surface">
+            <tr>
+              <td class="py-3 px-4 font-semibold">Semantic XML Containerization</td>
+              <td class="py-3 px-4 text-emerald-400">Supported</td>
+              <td class="py-3 px-4 text-outline">N/A (Markdown)</td>
+              <td class="py-3 px-4 text-emerald-400">Native Optimal</td>
+              <td class="py-3 px-4 text-outline">N/A</td>
+              <td class="py-3 px-4 text-outline">N/A</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold">File Glob Pattern Matching</td>
+              <td class="py-3 px-4 text-outline">Path-based</td>
+              <td class="py-3 px-4 text-emerald-400">Native `globs: [...]`</td>
+              <td class="py-3 px-4 text-outline">Instructional</td>
+              <td class="py-3 px-4 text-outline">Single-file</td>
+              <td class="py-3 px-4 text-outline">N/A</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold">Terminal Verification Gates</td>
+              <td class="py-3 px-4 text-emerald-400">Strict Checkpoints</td>
+              <td class="py-3 px-4 text-emerald-400">Supported</td>
+              <td class="py-3 px-4 text-emerald-400">Supported</td>
+              <td class="py-3 px-4 text-outline">N/A (Browser)</td>
+              <td class="py-3 px-4 text-outline">N/A</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold">Adversarial Edge Defenses</td>
+              <td class="py-3 px-4 text-emerald-400">100% Injected</td>
+              <td class="py-3 px-4 text-emerald-400">100% Injected</td>
+              <td class="py-3 px-4 text-emerald-400">100% Injected</td>
+              <td class="py-3 px-4 text-emerald-400">UI Fallbacks</td>
+              <td class="py-3 px-4 text-emerald-400">Negative Prompts</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold">Token Density Optimization</td>
+              <td class="py-3 px-4">96.8%</td>
+              <td class="py-3 px-4">98.2%</td>
+              <td class="py-3 px-4">97.4%</td>
+              <td class="py-3 px-4">94.5%</td>
+              <td class="py-3 px-4">99.1%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-outline-variant/20 py-8 text-center text-xs text-outline-variant">
+    © 2026 PromptArchitect AI Inc. • <a class="hover:text-primary" href="index.html">Back to Home</a>
+  </footer>
+
+  <script>
+    const targets = {
+      antigravity: {
+        badge: "Google Antigravity Target",
+        badgeClass: "text-primary bg-primary/10 border-primary/30",
+        title: "Autonomous Agent Task Blueprint (.agents/skills format)",
+        code: `# Mission: Build Production PostgreSQL-Backed Auth Gateway
+
+## 1. Directory Tree Mandate
+You MUST first execute \`run_command: ls -la\` or inspect the workspace root before creating any new file.
+
+## 2. Skill Dependencies
+- Load \`skills/database-migration/SKILL.md\` for schema migration scripts.
+- Load \`skills/jwt-cryptography/SKILL.md\` for Ed25519 token signing.
+
+## 3. Atomic Phase Progression
+### Phase 1: Database Migration
+- Target: \`prisma/schema.prisma\`
+- Checkpoint: Run \`npx prisma migrate dev\` and verify exit code 0.
+- Failure Action: If migration fails, revert and emit detailed error log.
+
+### Phase 2: Route Handlers & HMAC Middleware
+- Target: \`src/routes/auth.ts\`
+- Terminal Gate: Run \`npm run test:auth\`
+- Verification: 100% pass on replay attack rejection tests.`
+      },
+      cursor: {
+        badge: "Cursor IDE Target (.cursorrules / .mdc)",
+        badgeClass: "text-secondary bg-secondary/10 border-secondary/30",
+        title: "Cursor MDC Rules Specification",
+        code: `---
+description: Production standards for React 19 + TypeScript API routes
+globs: ["src/app/api/**/*.ts", "src/components/**/*.tsx"]
+alwaysApply: false
+---
+
+# Codebase Standards & Boundaries
+- STRICT: Never use \`any\` or \`unknown\` without runtime type guards (Zod).
+- STYLING: TailwindCSS v4 with CSS variables. Do not use inline styles.
+- ARCHITECTURE: Keep business logic in \`src/services/*\`, routes only handle validation and HTTP response mapping.
+
+# Terminal Checkpoints
+Before completing any task:
+1. Run \`npm run typecheck\`
+2. Run \`npm run lint\`
+3. If errors exist, repair without suppressing linter rules.`
+      },
+      claude: {
+        badge: "Claude Code XML Target",
+        badgeClass: "text-tertiary bg-tertiary/10 border-tertiary/30",
+        title: "Anthropic Claude Semantic XML Prompt",
+        code: `<context>
+You are an expert distributed systems engineer refactoring an in-memory queue into an AWS SQS + Lambda event-driven consumer.
+</context>
+
+<system_constraints>
+1. IDEMPOTENCY: Every message must have a deduplication ID computed from SHA256(payload.timestamp + payload.userId).
+2. DEAD LETTER QUEUE: Max receive count = 3 before redrive to DLQ.
+3. CONCURRENCY: Maximum batch size = 10, visibility timeout = 30 seconds.
+</system_constraints>
+
+<instructions>
+1. Inspect \`src/queues/\` to review the legacy in-memory interface.
+2. Implement \`src/queues/sqs-consumer.ts\` satisfying the interface.
+3. Add integration test suite in \`test/sqs.test.ts\` utilizing LocalStack.
+</instructions>
+
+<output_format>
+Output code modifications with standard unified diff format. Include unit test execution results.
+</output_format>`
+      },
+      v0: {
+        badge: "v0 (Vercel) Target",
+        badgeClass: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+        title: "Component-First v0 Prompt Specification",
+        code: `Create a responsive modern dark-mode Analytics Dashboard in React 19 with Tailwind CSS and Lucide React icons.
+
+Layout Requirements:
+- Left sidebar with icons (Dashboard, Reports, Integrations, Settings) and collapsible behavior.
+- Top sticky stats bar with 4 KPI cards: Total Revenue ($48.2k), Churn Rate (1.2%), Active Sessions (8,412), Conversion (4.8%).
+- Main view: Interactive Recharts area chart showing 30-day traffic velocity with gradient fills.
+- Recent Activity table with status pills (Success: emerald, Pending: amber, Failed: rose).
+
+State & Interactivity:
+- Include time range selector pills (7D, 30D, 90D, 1Y) with smooth state transitions.
+- All mock data must be realistic and strongly typed.`
+      },
+      midjourney: {
+        badge: "Midjourney v6 / Flux Target",
+        badgeClass: "text-purple-400 bg-purple-500/10 border-purple-500/30",
+        title: "Optical & Stylistic Photorealistic Prompt",
+        code: `/imagine prompt: Cinematic medium shot of a cybernetic research scientist in an obsidian glass cleanroom, volumetric cyan and lavender fiber-optic rim lighting, detailed reflective surfaces, 85mm Hasselblad lens, f/1.8 aperture, subtle chromatic aberration, hyper-detailed textures, octane render --ar 16:9 --style raw --v 6.1 --s 350 --no cartoon, illustration, lowres, blurry, oversaturated, watermark`
+      }
+    };
+
+    function selectTarget(targetKey) {
+      const keys = ['antigravity', 'cursor', 'claude', 'v0', 'midjourney'];
+      keys.forEach(k => {
+        const card = document.getElementById(`card-${k}`);
+        if (k === targetKey) {
+          card.classList.add('border-2', 'border-primary');
+          card.classList.remove('border-outline-variant/30');
+        } else {
+          card.classList.remove('border-2', 'border-primary');
+          card.classList.add('border-outline-variant/30');
+        }
+      });
+
+      const data = targets[targetKey];
+      const badge = document.getElementById('target-badge');
+      badge.innerText = data.badge;
+      badge.className = `text-label-caps px-3 py-1 rounded border ${data.badgeClass}`;
+      document.getElementById('target-title').innerText = data.title;
+      document.getElementById('target-code').innerText = data.code;
+    }
+
+    function copyCurrentTarget() {
+      const code = document.getElementById('target-code').innerText;
+      navigator.clipboard.writeText(code);
+      alert('Blueprint copied to clipboard!');
+    }
+
+    // Initialize with Antigravity
+    selectTarget('antigravity');
+  </script>
+  <script type="module" src="js/effects.js"></script>
+</body>
+</html>

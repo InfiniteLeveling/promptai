@@ -6,26 +6,22 @@
 
 ---
 
-## 1. WHAT TO USE (Approved Technologies, Patterns & Conventions)
+## 1. TECH STACK & ARCHITECTURAL PRINCIPLES (Flexible & Open Architecture)
 
-### 1.1 Core Frontend Stack
-* **HTML5 & Semantic Markup:** Accessible, semantic HTML (`<header>`, `<main>`, `<section>`, `<article>`, `<nav>`, `<aside>`) with explicit `id` attributes on all interactive elements.
-* **Vanilla CSS3 Design System:**
-  * Strict use of CSS Custom Properties (`var(--primary)`, `var(--bg-glass)`, `var(--border-subtle)`, etc.) defined in `variables.css`.
-  * Modern styling paradigms: glassmorphism (`backdrop-filter: blur()`), subtle micro-interactions, responsive flex/grid layouts, and sleek dark mode as default.
-  * Modern typography via Google Fonts (Outfit for headers, Inter for UI text, JetBrains Mono for code blocks and schemas).
-* **Vanilla JavaScript (ES6+ Modules):**
-  * Native ES Modules (`import`/`export`) without heavy client-side bundler lock-in for core sandbox operations.
-  * Native DOM APIs, `EventTarget`, and reactive state patterns with unidirectional data flow.
-  * Standard Web APIs: `fetch()`, `AbortController` (for request cancellation), `navigator.clipboard`, and `localStorage`.
+### 1.1 Frontend Ecosystem (Flexible)
+* **Framework Flexibility:** Developers and agents are free to choose the best-suited frontend technology for the project needs:
+  * Vanilla HTML5 / CSS3 / ES6+ JavaScript modules (ideal for lightweight sandbox & zero-build setups).
+  * Modern Frameworks & Tooling: React, Next.js, Vite, Vue, Svelte, or Astro when full component frameworks, hydration, or SSR are beneficial.
+  * Styling Freedom: Developers may utilize Vanilla CSS (Custom Properties), TailwindCSS, CSS Modules, or component UI libraries (shadcn/ui, Radix, Lucide Icons) as appropriate.
+* **Semantic & Accessible Markup:** Maintain accessible, semantic HTML structures with explicit IDs on all interactive elements.
+* **Design Standards:** Maintain high aesthetic standards (glassmorphism, cohesive color palettes, polished micro-interactions, dark/light theme support).
 
-### 1.2 Core Backend Stack
-* **Runtime:** Node.js (v20+ LTS).
-* **API Framework:** Express.js (v4.19+ or v5) configured with security headers (`helmet`), CORS whitelisting, and JSON body parsing.
+### 1.2 Backend & Services Ecosystem (Flexible)
+* **Runtime & Frameworks:** Node.js (Express, Fastify, NestJS, Next.js API routes), Python (FastAPI, Flask), or other modern backend environments based on performance and ecosystem requirements.
 * **Architecture Pattern:** Clean Layered Architecture:
   `Routes -> Controllers -> Pipeline Engine (7 Stages) -> Services (AI / Ingestion) -> Storage / Cache`.
 * **AI Orchestration:**
-  * Google Gemini 1.5 Flash (via official `@google/genai` or Vertex AI SDK) as default execution engine with **Structured Output Mode** (`responseSchema` / JSON mode).
+  * Google Gemini models (Gemini 1.5/2.0 Flash / Pro) via official SDKs or REST APIs as default reasoning engine with Structured Output Mode (`responseSchema` / JSON mode).
   * System prompt engineering utilizing strict XML boundary containers (`<system_instruction>`, `<raw_input>`, `<canonical_spec>`, `<output_format>`).
 
 ### 1.3 Architectural Patterns
@@ -35,62 +31,36 @@
 
 ---
 
-## 2. WHAT TO AVOID (Strictly Prohibited Packages & Anti-Patterns)
+## 2. WHAT TO AVOID (Security Guardrails & Anti-Patterns)
 
-### 2.1 Prohibited Technologies & Packages
+### 2.1 Security & Operational Prohibitions
 | Category | Prohibited Items | Rationale | Approved Alternative |
 | :--- | :--- | :--- | :--- |
-| **Styling Frameworks** | TailwindCSS, Bootstrap, Bulma, Sass/SCSS | Introduces external build tooling overhead, dependency bloat, and rigid utility classes that conflict with custom design tokens. | Vanilla CSS3 with CSS Custom Properties and CSS Grid/Flexbox. |
-| **Frontend Frameworks** (V0.1–V0.3) | React, Next.js, Vue, Angular, Svelte | Unnecessary virtual DOM overhead and compilation complexity for the sandbox and core engine. | Vanilla ES6+ Web Components & state management. |
-| **Commodity Consumer APIs** | Crypto tickers, Weather, Sports, Food/Recipe databases, Anime APIs | Violates Section 8 of the Master PRD; causes architectural bloat and deviates from developer tooling focus. | Developer-centric APIs only (GitHub, Gemini, Auth0, Diagrams.so). |
 | **Insecure Execution Modules** | `eval()`, `vm2`, `child_process.exec()` on raw user input | Severe Remote Code Execution (RCE) vulnerabilities. | Strict **Non-Executable Principle**: system outputs static text/markdown only. |
-| **Heavy Utilities** | Lodash, Moment.js, Underscore, Request | Massive bundle size, deprecated patterns, or native JS equivalents exist. | Native JS (`Array.prototype`, `Date`, native `fetch()`, `crypto.randomUUID()`). |
+| **Client-Side Secret Exposure** | Hardcoding API keys (Gemini, GitHub, Auth0) in client code | Exposes billable and private credentials to public inspection. | Store secrets in backend environment variables (`.env`). |
+| **Unsanitized Prompts** | Passing raw user strings directly into system prompts | Vulnerable to prompt injection and meta-directive hijacking. | Wrap user input in `<raw_input>...</raw_input>` tags. |
+| **Commodity Consumer APIs** | Crypto tickers, Weather, Sports, Food/Recipe databases, Anime APIs | Violates Section 8 of the Master PRD; causes architectural bloat. | Developer-centric APIs only (GitHub, Gemini, Auth0, Diagrams.so). |
 
 ### 2.2 Prohibited Engineering Practices
-* **No Client-Side Secrets:** Never bundle or expose API keys (Gemini, GitHub, Auth0, Cloudflare) in frontend scripts, client HTML, or public repositories.
+* **No Client-Side Secrets:** Never bundle or expose API keys in frontend scripts, client HTML, or public repositories.
 * **No Unbounded Prompt Interrogation:** Never engage the user in multi-turn conversational question loops. Use dynamic clickable selection chips (<15s) instead.
 * **No Code Modification without Schema:** In autonomous coding agent output, never instruct agents to write application code before first generating the architectural blueprint (`RequirementSpec` + `PRD.md`).
-* **No Unsanitized LLM Directives:** Never pass raw user prompt strings directly into LLM prompts without `<raw_input>` XML delimiter isolation.
 * **No Premature State Saturation:** Never pass entire repository codebases into context; ingest only structural trees, schemas, dependencies, and exported signatures.
 
 ---
 
 ## 3. LIBRARIES & DEPENDENCIES
 
-### 3.1 Backend Production Dependencies
-```json
-{
-  "dependencies": {
-    "@google/genai": "^0.1.1",       // Official Google Gemini SDK for Structured JSON & Vision
-    "express": "^4.19.2",             // REST API gateway & middleware routing
-    "cors": "^2.8.5",                 // Cross-Origin Resource Sharing handling
-    "helmet": "^7.1.0",               // Essential HTTP security headers
-    "dotenv": "^16.4.5",              // Environment variable isolation
-    "ajv": "^8.12.0",                 // Fast JSON Schema validator for RequirementSpec
-    "ajv-formats": "^2.1.1",          // URI, UUID, and date formats for Ajv
-    "express-rate-limit": "^7.2.0",   // Tiered DDoS & API abuse prevention
-    "uuid": "^9.0.1"                  // UUID v4 generator for spec_id tracking
-  }
-}
-```
-
-### 3.2 Development & Testing Dependencies
-```json
-{
-  "devDependencies": {
-    "nodemon": "^3.1.0",              // Hot-reloading development server
-    "jest": "^29.7.0",                // Unit & integration test harness
-    "supertest": "^6.3.4",            // HTTP assertion testing for Express endpoints
-    "eslint": "^8.57.0",              // Static code analysis & linting
-    "prettier": "^3.2.5"              // Standardized code formatting
-  }
-}
-```
-
-### 3.3 Version & Dependency Policy
-* Lock exact versions using `package-lock.json`.
-* Every new dependency requires architectural justification: **If a feature can be accomplished with under 40 lines of clean native JavaScript, do NOT install a package.**
-* Run `npm audit` on every build pipeline; zero high or critical vulnerabilities allowed.
+### 3.1 Dependency Policy
+* **Open Selection:** Any established, actively maintained library or package (npm, PyPI, etc.) that accelerates delivery, improves maintainability, or enhances UI/UX quality is permitted.
+* **Quality & Security Baseline:** Lock versions using lockfiles (`package-lock.json`, `pnpm-lock.yaml`), and ensure zero high/critical vulnerabilities via `npm audit`.
+* **Standard Dependencies Example (Backend):**
+  * `@google/genai` or `@google/generative-ai` (Gemini SDK)
+  * `express` / `cors` / `helmet` / `dotenv`
+  * `ajv` & `ajv-formats` (JSON Schema validation)
+  * `uuid`, `express-rate-limit`
+* **Standard Dependencies Example (Frontend):**
+  * Standard Web APIs or modern UI libraries (TailwindCSS, Lucide Icons, etc.) as preferred for the implementation.
 
 ---
 
@@ -213,15 +183,15 @@ npm -v
 ```
 
 ### 7.3 Dependency Installation
-PromptArchitect AI follows a zero-bloat dependency philosophy:
+Install project dependencies as configured:
 ```bash
-# Install backend production and testing dependencies
+# Install dependencies
 npm install
 
 # Audit dependencies for security compliance (zero high/critical vulnerabilities allowed)
 npm audit
 ```
-> **Note:** The `client/` application uses native Vanilla HTML5/CSS3/ES6+ modules. It requires **no separate client npm install, webpack, Vite, or bundle compilation step**.
+> **Note:** PromptArchitect AI supports both zero-build static setups (Vanilla HTML5/CSS3/ES6+) and modern frontend build environments (React, Next.js, Vite, TailwindCSS) as desired.
 
 ### 7.4 Environment Variable Configuration
 1. Copy the example configuration file:
