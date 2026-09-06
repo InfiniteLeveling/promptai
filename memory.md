@@ -64,6 +64,7 @@
 | **2026-09-06** | Master Backend Build Prompt | Created [backend-build-prompt.txt](file:///d:/prompt%20maker/backend-build-prompt.txt) specifying the complete autonomous prompt to build the backend in 6 phases, enforcing the 3 Golden Rules (pre-phase plan, post-phase setup & testing guide, and closed-loop 'Proceed' gate). | ✅ Complete |
 | **2026-09-06** | Backend Phase 1: Gateway & Infrastructure | Built and verified the production Express foundation in `server/` on Port 3000: ESM setup, Helmet, CORS, 60 req/min rate limiter, standardized error handler, and `GET /api/health` returning 200 OK. | ✅ Complete |
 | **2026-09-06** | Live Sandbox Improve Button Fix | Resolved issue where clicking `[Improve]` produced no changes: (1) Added `isImproving`, `improvementLevel`, and `lastImprovementNotice` to [usePromptStore.ts](file:///d:/prompt%20maker/frontend/src/store/usePromptStore.ts), (2) Injected multi-tier hardening passes (Level 1: HMAC replay defense, distributed idempotency keys, terminal rollback gates; Level 2: OpenTelemetry tracing spans, Prometheus RED metrics, and SOC2 audit compliance), (3) Boosted Prompt DNA quality score to 98/100 (Level 1) and 100/100 (Level 2), (4) Added dynamic notification banner with "Inspect Changes →" quick link, and (5) Added button states ("Improving...", "✨ Improved!"). | ✅ Complete |
+| **2026-09-06** | Backend Phase 2: Core AI Engine, Gemini 1.5 & Sanitization | Connected backend to `@google/genai`, built XML sanitization & prompt injection defense in [sanitize.js](file:///d:/prompt%20maker/server/middleware/sanitize.js), created [canonicalRequirementSpec.json](file:///d:/prompt%20maker/server/schemas/canonicalRequirementSpec.json) draft-07 schema with [schemaValidator.js](file:///d:/prompt%20maker/server/services/schemaValidator.js), built [gemini.js](file:///d:/prompt%20maker/server/services/gemini.js) with resilient fallback, and exposed `POST /api/prompts/analyze`. All tests verified (normal analysis, injection blocking, length bounds). | ✅ Complete |
 
 ### Issues Encountered & Resolved
 * **Issue:** Playwright driver download error (`404 Not Found` fetching `playwright-1.57.0-win32_x64.zip` from Azure CDN) during automated browser subagent initialization.
@@ -78,13 +79,13 @@
 ## 3. CURRENTLY WORKING
 
 ### 3.1 Active Milestone & Focus
-* **Current Phase:** UX Manifesto Implementation Verified & Synchronized.
-* **Active Status:** Synchronized on `http://localhost:5000/client/sandbox.html` and `http://localhost:5173/sandbox`.
+* **Current Phase:** Phase 2 Complete (Core AI Engine, Gemini 1.5 Integration & Input Sanitization). Ready for Phase 3 (7-Stage Deterministic Prompt Compiler & Heuristic Scorer).
+* **Active Status:** Endpoints live and verified on `http://localhost:3000/api/prompts/analyze` and `http://localhost:3000/api/health`.
 
 ### 3.2 What's Next
-1. Walk user through testing the new UX Manifesto features in their browser on `http://localhost:5173/sandbox` or `http://localhost:5000/client/sandbox.html`.
-2. Commit and push updated files to Git.
-3. Proceed to Phase V0.2: Gemini Backend Integration.
+1. User tests and verifies Phase 2 endpoints.
+2. User provides approval ("proced") to enter **Phase 3: The 7-Stage Deterministic Prompt Compiler & Heuristic Scorer** (building `server/engine/`: scorer, classifier, extractor, clarifier, generator, critic, optimizer, and adapters for Antigravity, Cursor, Claude, v0).
+
 
 
 ---

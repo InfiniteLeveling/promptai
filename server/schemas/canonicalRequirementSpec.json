@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CanonicalRequirementSpec",
+  "description": "Standardized Intermediate Representation (IR) for compiled software requirements",
+  "type": "object",
+  "required": [
+    "spec_id",
+    "category",
+    "objective",
+    "technical_stack",
+    "functional_requirements",
+    "constraints",
+    "acceptance_criteria",
+    "metadata"
+  ],
+  "properties": {
+    "spec_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this specification"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "website",
+        "coding",
+        "debugging",
+        "image",
+        "video",
+        "app",
+        "agent",
+        "research",
+        "writing",
+        "education",
+        "general"
+      ],
+      "description": "Domain archetype classification"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 10,
+      "description": "High-level functional goal and system mission"
+    },
+    "technical_stack": {
+      "type": "object",
+      "required": ["frontend", "backend", "database", "infra"],
+      "properties": {
+        "frontend": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "backend": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "database": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "infra": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "functional_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Explicit user stories and functional capabilities"
+    },
+    "constraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Architectural, negative, and security constraints"
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Deterministic testable conditions of satisfaction"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["target_agent", "created_at"],
+      "properties": {
+        "target_agent": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "heuristic_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
