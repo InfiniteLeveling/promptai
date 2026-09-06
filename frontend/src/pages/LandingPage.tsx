@@ -60,12 +60,13 @@ export const LandingPage: React.FC = () => {
             <Link to="/sandbox">
               <Button size="lg" className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-tertiary" />
-                <span>Launch Sandbox ⚡</span>
+                <span>Launch Free Sandbox</span>
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/compiler">
+            <Link to="/two-prompt">
               <Button variant="outline" size="lg" className="flex items-center gap-2">
-                <span>The 7-Stage Engine</span>
+                <span>View 2-Prompt Blueprint</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
