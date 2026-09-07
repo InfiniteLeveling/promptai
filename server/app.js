@@ -41,8 +41,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const apiPrefix = process.env.API_PREFIX || '/api';
 app.use(apiPrefix, apiRateLimiter);
 
-// Mount API Routes
+// Mount API Routes (supports /api and root paths in Vercel serverless)
 app.use(apiPrefix, apiRoutes);
+app.use('/', apiRoutes);
 
 // 404 Route Handler
 app.use(notFoundHandler);
