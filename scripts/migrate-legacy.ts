@@ -93,7 +93,7 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
     // Also extract userIds from prompts and usage
     if (Array.isArray(legacyDb.prompts)) {
       for (const p of legacyDb.prompts) {
-        if (p.user_id) userIds.add(p.user_id);
+        userIds.add(p.user_id || 'guest_anonymous');
       }
     }
     if (legacyDb.usage && typeof legacyDb.usage === 'object') {
@@ -108,7 +108,24 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
 
     for (const legacyUserId of userIds) {
       const uuid = toDeterministicUuid(legacyUserId);
-      await client.from('profiles').upsert({
+
+      // In real Supabase, profiles.id references auth.users(id).
+      // If auth admin API is available on the client, ensure the user exists in auth.users first.
+      if ((client as any).auth?.admin?.createUser) {
+        try {
+          await (client as any).auth.admin.createUser({
+            id: uuid,
+            email: `${uuid}@promptarchitect.internal`,
+            password: 'TemporaryMigrationPassword123!',
+            email_confirm: true,
+            user_metadata: { legacy_id: legacyUserId }
+          });
+        } catch {
+          // User may already exist in auth.users
+        }
+      }
+
+      const { error: profileError } = await client.from('profiles').upsert({
         id: uuid,
         tier: legacyUserId.includes('dev') ? 'developer' : 'free',
         display_name: `Migrated User (${legacyUserId})`,
@@ -116,6 +133,9 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
         is_anonymous: !legacyUserId.includes('dev'),
         updated_at: new Date().toISOString()
       });
+      if (profileError) {
+        logger.warn({ profileError, legacyUserId }, 'Profile upsert warning');
+      }
       usersMigrated++;
     }
 
@@ -125,7 +145,7 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
         const promptUuid = toDeterministicUuid(p.id);
         const userUuid = toDeterministicUuid(p.user_id || 'guest_anonymous');
 
-        await client.from('prompts').upsert({
+        const { error: promptError } = await client.from('prompts').upsert({
           id: promptUuid,
           user_id: userUuid,
           title: p.title || 'Migrated Prompt',
@@ -136,10 +156,14 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
           created_at: p.created_at || new Date().toISOString(),
           updated_at: p.updated_at || new Date().toISOString()
         });
+        if (promptError) {
+          logger.error({ promptError, promptId: p.id }, 'Failed to upsert prompt');
+          throw promptError;
+        }
 
         // Version 1
         const versionUuid = toDeterministicUuid(`${p.id}_v1`);
-        await client.from('prompt_versions').upsert({
+        const { error: versionError } = await client.from('prompt_versions').upsert({
           id: versionUuid,
           prompt_id: promptUuid,
           version_number: 1,
@@ -153,6 +177,9 @@ export async function runLegacyMigration(options: MigrationOptions): Promise<Mig
           heuristic_score: p.diagnostic_score || 95,
           created_at: p.created_at || new Date().toISOString()
         });
+        if (versionError) {
+          logger.warn({ versionError, promptId: p.id }, 'Version upsert warning');
+        }
 
         promptsMigrated++;
       }
