@@ -1,12 +1,12 @@
 {
-  "migrationRunId": "99077cde-6db2-4a97-adbd-455fcdd1ef4d",
-  "workerId": "worker-run-2",
+  "migrationRunId": "b45b89cf-7e75-4a3d-acfe-abc6a3c518a5",
+  "workerId": "migration-worker-0fbaec51",
   "sourceSha256": "10f20f0f24afc00cec14168b40d7d61ffa5e5303ef2958a1531d69da45ac1693",
   "usersMigrated": 1,
   "promptsMigrated": 1,
   "templatesMigrated": 5,
   "usageCountersMigrated": 1,
   "checksumVerification": "PASSED",
-  "startedAt": "2026-09-07T15:52:23.457Z",
-  "completedAt": "2026-09-07T15:52:23.458Z"
+  "startedAt": "2026-09-07T16:01:12.462Z",
+  "completedAt": "2026-09-07T16:01:15.005Z"
 }
