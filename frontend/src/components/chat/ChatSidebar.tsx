@@ -204,7 +204,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isCollapsed, onToggleC
   };
 
   return (
-    <aside className="w-[260px] h-screen border-r border-outline-variant/20 bg-surface-container-lowest flex flex-col shrink-0 z-30 select-none">
+    <aside className="w-[260px] h-screen border-r border-outline-variant/20 bg-surface-container-lowest flex flex-col shrink-0 z-30 select-none md:relative fixed inset-y-0 left-0 shadow-2xl md:shadow-none transition-all duration-200">
       {/* Top Header */}
       <div className="h-14 px-3 flex items-center justify-between border-b border-outline-variant/15">
         <div className="flex items-center gap-2">
