@@ -38,6 +38,13 @@ export interface UsageQuota {
   resets_at: string;
 }
 
+export interface BackendHealthStatus {
+  connected: boolean;
+  version?: string;
+  uptime?: number;
+  latencyMs?: number;
+}
+
 /**
  * Standard HTTP fetch helper with 8-second timeout.
  */
@@ -70,6 +77,32 @@ export const apiService = {
       return json.status === 'ok';
     } catch {
       return false;
+    }
+  },
+
+  /**
+   * Get detailed backend telemetry and latency
+   */
+  async getBackendHealth(): Promise<BackendHealthStatus> {
+    const start = performance.now();
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/health`, {}, 3000);
+      const latencyMs = Math.round(performance.now() - start);
+      if (!res.ok) {
+        return { connected: false, latencyMs };
+      }
+      const json = await res.json();
+      return {
+        connected: json.status === 'ok',
+        version: json.version || '3.0.0',
+        uptime: json.uptime,
+        latencyMs
+      };
+    } catch {
+      return {
+        connected: false,
+        latencyMs: Math.round(performance.now() - start)
+      };
     }
   },
 

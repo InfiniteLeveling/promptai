@@ -19,6 +19,9 @@ interface PromptState {
   isImproving: boolean;
   improvementLevel: number;
   lastImprovementNotice: string | null;
+  isBackendConnected: boolean | null;
+  backendLatency: number | null;
+  backendVersion: string | null;
 
   // Actions
   setRawPrompt: (text: string) => void;
@@ -33,6 +36,7 @@ interface PromptState {
   recalculateScore: () => void;
   setIsEditingArtifact: (val: boolean) => void;
   updateArtifactContent: (tab: 'promptA' | 'promptB' | 'native' | 'schema', content: string) => void;
+  checkBackendConnection: () => Promise<void>;
 }
 
 const EMPTY_SCORE: ScoreBreakdown = {
@@ -208,6 +212,9 @@ export const usePromptStore = create<PromptState>((set, get) => ({
   isImproving: false,
   improvementLevel: 0,
   lastImprovementNotice: null,
+  isBackendConnected: null,
+  backendLatency: null,
+  backendVersion: null,
 
   setRawPrompt: (text: string) => {
     const cat = detectCategory(text);
@@ -318,6 +325,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       if (json && json.success && json.data) {
         const d = json.data;
         set({
+          isBackendConnected: true,
           isCompiling: false,
           compilingStage: 7,
           totalScore: d.diagnostic_score || 94,
@@ -336,6 +344,7 @@ export const usePromptStore = create<PromptState>((set, get) => ({
       }
     } catch {
       // Seamless fallback to client-side compiler
+      set({ isBackendConnected: false });
     }
 
     // 2. Client-side compilation fallback
@@ -614,6 +623,15 @@ export const usePromptStore = create<PromptState>((set, get) => ({
         ...current,
         [tab === 'native' ? 'nativeCode' : tab === 'schema' ? 'schemaJson' : tab]: content
       }
+    });
+  },
+
+  checkBackendConnection: async () => {
+    const health = await apiService.getBackendHealth();
+    set({
+      isBackendConnected: health.connected,
+      backendLatency: health.latencyMs ?? null,
+      backendVersion: health.version ?? null
     });
   }
 }));

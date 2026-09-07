@@ -13,6 +13,14 @@
 
 ---
 
+## 📚 Complete Guides & Documentation
+
+- **🚀 [Frontend ↔ Backend Setup & Integration Guide](FRONTEND_BACKEND_SETUP_GUIDE.md)**: Step-by-step master guide for connecting the React 19 / Vite frontend to Fastify 5.x & Supabase (Auth, proxying, quota, compilation, and production cutover).
+- **🔍 [Frontend ↔ Backend Discovery Report](FRONTEND_BACKEND_DISCOVERY.md)**: Detailed discovery audit comparing existing frontend components against target v2.3 architecture.
+- **⚡ [Backend Quick Setup Guide](setup.md)**: 60-second backend configuration guide with migration sequencing and cURL cheat sheets.
+
+---
+
 ## 🌟 Overview: The "Architect Before the Builder" Philosophy
 
 Autonomous coding agents (Google Antigravity, Cursor, Claude Code, v0) are extraordinarily powerful builders, but when given unstructured prompts like *"Build me an e-commerce website"*, they make unguided assumptions:
